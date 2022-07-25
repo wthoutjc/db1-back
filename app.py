@@ -16,29 +16,35 @@ CORS(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 
-@app.route("/", defaults={'id': None}, methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/", defaults={'id': None}, methods=["GET", "POST", "PUT"])
 @app.route("/<id>", methods=["GET", "DELETE"])
 def empleado_route(id):
     print('empleado_route') 
     database = Database()
 
     if request.method == "GET":
+        print(f'GET {id}')
         # Leer todos los empleados
         if id:
             message, success = database.read_empleado(id)
             if success:
-                return make_response(jsonify({"empleado": message}), 200)
+                return make_response(jsonify({"empleado": message[0]}), 200)
             else:
                 return make_response(jsonify({"message": message}), 404)
         limit = int(request.args.get('limit', 20))
         offset = int(request.args.get('offset', 0))
         message, success = database.read_empleados(limit, offset)
         if success:
-            return make_response(jsonify({"empleados": message}), 200)
+            result = []
+            for data in message:
+                print(data[0])
+                result.append(json.loads(data[0]))
+            return make_response(jsonify({"empleados": result}), 200)
         else:
             return make_response(jsonify({"message": message}), 404)
 
     elif request.method == "POST":
+        print(f'GET {id}')
         # Registrar un empleado
         if not request.data:
             return make_response(jsonify({"message": "No request data"}), 500)
