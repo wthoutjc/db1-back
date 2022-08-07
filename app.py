@@ -101,5 +101,15 @@ def empleado_route(id):
 
     return make_response(jsonify({"message": "Method Not Allowed"}), 405)
 
+
+@app.route("/login", methods=["POST"])
+def login():
+    if request.data: 
+        data = request.data.decode("UTF-8")
+        request_data = json.loads(data)
+        print("data")
+        print(request_data)
+
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')

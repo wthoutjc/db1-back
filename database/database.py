@@ -2,6 +2,7 @@ import oracledb
 
 from database.connection import Connection
 
+
 class Database():
     def __init__(self):
         '''
@@ -9,7 +10,7 @@ class Database():
         '''
         self.connection = None
 
-    #Config Access
+    # Config Access
     def login_database(self):
         '''
         Iniciamos una conexion a la base de datos.
@@ -25,17 +26,19 @@ class Database():
         Cerramos la conexión a la base de datos.
         '''
         try:
-             self.connection.__del__()
-             self.connection = None
+            self.connection.__del__()
+            self.connection = None
         except oracledb.Error as error:
             print('Logout database Error: ' + str(error))
 
+    
     def read_empleados(self, limit, offset):
         try:
             cur = self.login_database()
-            query = "SELECT JSON_OBJECT(*) FROM EMPLEADO ORDER BY IDPERSONAL OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"
+            query = "SELECT JSON_OBJECT(*) FROM EMPLEADO ORDER BY CODEMPLEADO OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"
             cur.execute(query, [offset, limit])
             rows = cur.fetchall()
+            print(rows)
             self.logout_database()
             if rows:
                 return rows, True
@@ -43,11 +46,12 @@ class Database():
         except oracledb.Error as error:
             print('read_empleados Error: ' + str(error))
             return ['Falló la consulta de empleados', False]
-    
+
     def read_empleado(self, id):
         try:
             cur = self.login_database()
-            cur.execute("SELECT JSON_OBJECT(*) FROM EMPLEADO WHERE IDPERSONAL = :idpersonal", [id])
+            cur.execute(
+                "SELECT JSON_OBJECT(*) FROM EMPLEADO WHERE CODEMPLEADO = :CODEMPLEADO", [id])
             rows = cur.fetchone()
             self.logout_database()
             if rows:
@@ -60,20 +64,21 @@ class Database():
     def update_empleado(self, request_data):
         try:
             cur = self.login_database()
-            query = "UPDATE EMPLEADO SET IDSEDE = '" + request_data['idSede'] + "', IDESPACIO = '" + request_data['idEspacio'] + "', IDEQUIPO = '" + request_data["idEquipo"] + "', SUPIDEQUIPO = " + str(request_data["supIdEquipo"] or 'null') + ", IDUDEPORTIVA = '" + request_data["idUDeportiva"] + "', NOMBRE = '" + request_data["nombre"] + "', APELLIDO = '" + request_data["apellido"] + "' WHERE IDPERSONAL = '" + request_data["idPersonal"] + "'"
+            query = "UPDATE EMPLEADO SET IDSEDE = '" + request_data['idSede'] + "', IDESPACIO = '" + request_data['idEspacio'] + "', IDEQUIPO = '" + request_data["idEquipo"] + "', SUPIDEQUIPO = " + str(
+                request_data["supIdEquipo"] or 'null') + ", IDUDEPORTIVA = '" + request_data["idUDeportiva"] + "', NOMBRE = '" + request_data["nombre"] + "', APELLIDO = '" + request_data["apellido"] + "' WHERE CODEMPLEADO = '" + request_data["CODEMPLEADO"] + "'"
             cur.execute(query)
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con cédula {request_data["idPersonal"]} actualizado exitosamente', True]
+            return [f'Empleado con cédula {request_data["CODEMPLEADO"]} actualizado exitosamente', True]
         except oracledb.Error as error:
             print('update_empleado Error: ' + str(error))
-            return [f'Falló el proceso de actualizar el empleado con cédula {request_data["idPersonal"]}', False]
+            return [f'Falló el proceso de actualizar el empleado con cédula {request_data["CODEMPLEADO"]}', False]
 
     def delete_empleado(self, id):
         print(f"Borrando {id}")
         try:
             cur = self.login_database()
-            query = "DELETE FROM EMPLEADO WHERE IDPERSONAL = '" + id + "'"
+            query = "DELETE FROM EMPLEADO WHERE CODEMPLEADO = '" + id + "'"
             cur.execute(query)
             self.connection.based.commit()
             self.logout_database()
@@ -85,20 +90,20 @@ class Database():
     def register_empleado(self, request_data):
         try:
             cur = self.login_database()
-            query = "INSERT INTO EMPLEADO VALUES(:idpersonal, :idsede, :idespacio, :idequipo, :supidequipo, :idudeportiva, :nombre, :apellido)"
+            query = "INSERT INTO EMPLEADO VALUES(:CODEMPLEADO, :idsede, :idespacio, :idequipo, :supidequipo, :idudeportiva, :nombre, :apellido)"
             cur.execute(query, [
-                request_data["idPersonal"], 
-                request_data["idSede"], 
-                request_data["idEspacio"], 
-                request_data["idEquipo"], 
-                request_data["supIdEquipo"], 
-                request_data["idUDeportiva"], 
-                request_data["nombre"], 
+                request_data["CODEMPLEADO"],
+                request_data["idSede"],
+                request_data["idEspacio"],
+                request_data["idEquipo"],
+                request_data["supIdEquipo"],
+                request_data["idUDeportiva"],
+                request_data["nombre"],
                 request_data["apellido"]
             ])
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con cédula {request_data["idPersonal"]} registrado exitosamente', True]
+            return [f'Empleado con cédula {request_data["CODEMPLEADO"]} registrado exitosamente', True]
         except oracledb.Error as error:
             print('register_empleado Error: ' + str(error))
-            return [f'Falló el registro de empleado con cédula {request_data["idPersonal"]}', False]
+            return [f'Falló el registro de empleado con cédula {request_data["CODEMPLEADO"]}', False]
