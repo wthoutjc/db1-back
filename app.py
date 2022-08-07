@@ -109,6 +109,8 @@ def login():
         request_data = json.loads(data)
         print("data")
         print(request_data)
+        return make_response(jsonify({"message": 'ok'}), 200)
+    return make_response(jsonify({"message": 'not ok'}), 500)
 
 
 if __name__ == "__main__":
