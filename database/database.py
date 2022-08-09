@@ -1,3 +1,4 @@
+from concurrent.futures import process
 import oracledb
 
 from database.connection import Connection
@@ -31,7 +32,6 @@ class Database():
         except oracledb.Error as error:
             print('Logout database Error: ' + str(error))
 
-    
     def read_empleados(self, limit, offset):
         try:
             cur = self.login_database()
@@ -47,19 +47,225 @@ class Database():
             print('read_empleados Error: ' + str(error))
             return ['Falló la consulta de empleados', False]
 
-    def read_empleado(self, id):
+    def read_auxiliar(self, id):
         try:
             cur = self.login_database()
             cur.execute(
-                "SELECT JSON_OBJECT(*) FROM EMPLEADO WHERE CODEMPLEADO = :CODEMPLEADO", [id])
+                """SELECT JSON_OBJECT(
+                    KEY 'name'  IS e.nomempleado||' '||e.apellempleado,
+                    KEY 'sede' IS es.nomespacio,
+                    KEY 'date' IS to_char(current_date, 'DD/MM/YY'),
+                    KEY 'time' IS to_char(current_date, 'HH24:mi')
+                    )
+                FROM
+                    empleado      e,
+                    empleadocargo ec,
+                    espacio es
+                WHERE
+                        e.codempleado = '""" + id + """'
+                    AND e.codempleado = ec.codempleado
+                    AND ec.idcargo = 'au'
+                    AND ec.codespacio = es.codespacio""")
             rows = cur.fetchone()
             self.logout_database()
             if rows:
                 return rows, True
-            return [f'El empleado con cédula {id} no existe.', False]
+            return [f'El código {id} no corresponde a un auxiliar.', False]
         except oracledb.Error as error:
-            print('read_empleado Error: ' + str(error))
-            return [f'Falló la consulta de empleado con cédula {id}', False]
+            print('read_auxiliar Error: ' + str(error))
+            return [f'Falló la consulta de auxiliar con código {id}', False]
+
+    def read_docente(self, name):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT DISTINCT JSON_OBJECT(
+                        KEY 'id' IS e.codempleado,
+                        KEY 'name' IS e.nomempleado||' '|| e.apellempleado,
+                        KEY 'sede' IS es.nomespacio)
+                    FROM
+                        empleado      e,
+                        empleadocargo ec,
+                        espacio       es
+                    WHERE
+                        lower(e.nomempleado||' '|| e.apellempleado) = '""" + name + """'
+                        AND ec.codespacio = es.codespacio
+                        AND ec.idcargo = 'do'
+                        AND e.codempleado = ec.codempleado
+                        AND ec.fechafincar is NULL""")
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El docente llamado {name} no existe.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del docente llamado {name}', False]
+
+    def get_data_practica_docente(self, name):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT JSON_OBJECT (
+                        KEY 'idprog' IS p.consecprogra,
+                        KEY 'espacio' IS e.nomespacio,
+                        KEY 'deporte' IS d.nomdeporte,
+                        KEY 'num_est' IS p.noinscrito )
+                    FROM
+                        espacio       e,
+                        tipoespacio   te,
+                        deporte       d,
+                        programacion  p,
+                        responsable r,
+                        empleado doc,
+                        empleadocargo ec
+                    WHERE
+                            p.iddeporte = d.iddeporte
+                        AND p.codespacio = e.codespacio
+                        AND doc.codempleado = ec.codempleado
+                        AND ec.idcargo = 'do'
+                        AND e.idtipoespacio = te.idtipoespacio
+                        AND r.codempleado = doc.codempleado
+                        AND r.consecprogra = p.consecprogra
+                        AND ( lower(doc.nomempleado|| ' '|| doc.apellempleado) ) LIKE '""" + name + """'
+                """)  # curso, deporte, espacio, numestud
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El docente llamado {id} no existe o no tiene programado un espacio.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del docente', False]
+
+    def read_pasante(self, id_pasante):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT JSON_OBJECT (
+                        KEY 'id_est' is  e.codestu,
+                        KEY 'name' is  e.nomestu||' '||e.apelestu, 
+                        KEY 'dia' is d.nomdia,
+                        KEY 'horai' is p.idhora,
+                        KEY 'horaf' is p.hor_idhora,
+                        KEY 'periodo' is p.idperiodo
+                        )
+                    FROM 
+                        estudiante e, responsable r, programacion p, dia d
+                    WHERE 
+                        e.codestu = '""" + id_pasante + """'
+                        and r.codestu = e.codestu
+                        and r.consecprogra = p.consecprogra
+                        and p.iddia = d.iddia
+                """)
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El pasante con {id_pasante} no existe.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del docente llamado {id_pasante}', False]
+
+    def get_data_practica_libre(self, id_pasante):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT JSON_OBJECT (
+                        KEY 'id_est' is  e.codestu,
+                        KEY 'name' is  e.nomestu||' '||e.apelestu, 
+                        KEY 'dia' is d.nomdia,
+                        KEY 'horai' is p.idhora,
+                        KEY 'horaf' is p.hor_idhora,
+                        KEY 'periodo' is p.idperiodo
+                        )
+                    FROM 
+                        estudiante e, responsable r, programacion p, dia d
+                    WHERE 
+                        e.codestu = '20181020135'
+                        and r.codestu = e.codestu
+                        and r.consecprogra = p.consecprogra
+                        and p.iddia = d.iddia
+                """)
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El docente llamado {id} no existe.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del docente', False]
+
+    def read_miembro(self, id_miembro, id_equipo):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT JSON_OBJECT (
+                        KEY 'id' is  e.codestu,
+                        KEY 'name' is  e.nomestu||' '||e.apelestu,
+                        KEY 'deporte' is de.nomdeporte,
+                        KEY 'dia' is d.nomdia,
+                        KEY 'horai' is p.idhora,
+                        KEY 'horaf' is p.hor_idhora,
+                        KEY 'periodo' is p.idperiodo,
+                        KEY 'periodo' is p.idperiodo,
+                        KEY 'entrenador' is em.codempleado
+                        )
+                    FROM 
+                        estudiante e, equipo eq, responsable r, programacion p, dia d, miembroequipo m, deporte de, empleado em
+                    WHERE  
+                        e.codestu = '""" + id_miembro + """'
+                        and eq.conseequipo = '""" + id_equipo + """'
+                        and m.codestu = e.codestu
+                        and m.conseequipo = eq.conseequipo
+                        and eq.iddeporte = de.iddeporte
+                        and eq.codempleado = em.codempleado
+                        and eq.codempleado = r.codempleado
+                        and r.consecprogra = p.consecprogra
+                        and p.iddia = d.iddia
+                """)
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El miembro con {id_miembro} no existe.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del miembro con id {id_miembro}', False]
+
+    def get_data_entrenamiento(self, id_entrendor):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    """)  # curso, deporte, espacio, numestud
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El docente llamado {id} no existe.', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta del docente', False]
+
+    def process_date_query(self, query):
+        try:
+            cur = self.login_database()
+            cur.execute(query)
+            rows = cur.fetchone()
+            print(rows)
+            self.logout_database()
+            if rows:
+                return True
+            return False
+        except oracledb.Error as error:
+            print('process_date_query Error: ' + str(error))
+            return False
 
     def update_empleado(self, request_data):
         try:
@@ -69,10 +275,10 @@ class Database():
             cur.execute(query)
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con cédula {request_data["CODEMPLEADO"]} actualizado exitosamente', True]
+            return [f'Empleado con código {request_data["CODEMPLEADO"]} actualizado exitosamente', True]
         except oracledb.Error as error:
             print('update_empleado Error: ' + str(error))
-            return [f'Falló el proceso de actualizar el empleado con cédula {request_data["CODEMPLEADO"]}', False]
+            return [f'Falló el proceso de actualizar el empleado con código {request_data["CODEMPLEADO"]}', False]
 
     def delete_empleado(self, id):
         print(f"Borrando {id}")
@@ -82,10 +288,10 @@ class Database():
             cur.execute(query)
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con cédula {id} eliminado satisfactoriamente', True]
+            return [f'Empleado con código {id} eliminado satisfactoriamente', True]
         except oracledb.Error as error:
             print('delete_empleado Error: ' + str(error))
-            return [f'Falló el proceso de borrar el empleado con cédula {id}', False]
+            return [f'Falló el proceso de borrar el empleado con código {id}', False]
 
     def register_empleado(self, request_data):
         try:
@@ -103,7 +309,33 @@ class Database():
             ])
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con cédula {request_data["CODEMPLEADO"]} registrado exitosamente', True]
+            return [f'Empleado con código {request_data["CODEMPLEADO"]} registrado exitosamente', True]
         except oracledb.Error as error:
             print('register_empleado Error: ' + str(error))
-            return [f'Falló el registro de empleado con cédula {request_data["CODEMPLEADO"]}', False]
+            return [f'Falló el registro de empleado con código {request_data["CODEMPLEADO"]}', False]
+
+    def get_materiales(self):
+        '''
+                query : "SELECT
+            e.consecelemento,
+            e.codespacio,
+            m.nommarca,
+            te.desctipoelemento,
+            es.nomespacio,
+            d.nomdeporte
+        FROM
+            elemendeportivo e,
+            marca           m,
+            tipoelemento te,
+            espacio es,
+            tipoelementodeporte ted,
+            deporte d
+        WHERE
+            m.idmarca = e.idmarca and
+            e.idestado = 'ac' and
+            e.idtipoelemento = te.idtipoelemento and
+            e.codespacio = es.codespacio and
+            te.idtipoelemento = ted.idtipoelemento and
+            d.iddeporte = ted.iddeporte;"
+        '''
+        pass
