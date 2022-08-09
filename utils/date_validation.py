@@ -10,10 +10,10 @@ def date_validation(database, id_asistente, tipo_asistencia):
                         programacion p
                     WHERE
                         r.codempleado = '""" + id_asistente + """'
-                        r.consecprogra = p.consecprogra
+                        AND r.consecprogra = p.consecprogra
                         AND current_timestamp > to_timestamp(r.fechaini || ' ' || p.idhora)
                         AND current_timestamp < to_timestamp(r.fechaini || ' ' || p.hor_idhora)"""
-        return database.process_date_query(query)  # to_char(current_date, 'HH24')
+        return database.process_date_query(query)  # to_char(current_date, 'HH24') DEVUELVE VALOR BOOLEANO
     if tipo_asistencia == "pasante":
         query = """
                     SELECT

@@ -43,14 +43,14 @@ def get_docente(name):
     if success:
         print(message)
         id_docente = json.loads(message[0])['id']
-        if date_validation(database, id_docente,  "docente"):
-            message, success = database.get_data_practica_docente(
+        if date_validation(database, id_docente, "docente"):
+            practica_docente, success = database.get_data_practica_docente(
                 name)  # puede que le mande más de una practica
-            print(message)
             if success:
-                return make_response(jsonify({"message": message, "status": "success"}), 200)
-            return make_response(jsonify({"message": message, "status": "failed"}), 500)
-    return make_response(jsonify({"message": 'not ok'}), 500)
+                return make_response(jsonify({"message": message | practica_docente, "status": "success"}), 200)
+            return make_response(jsonify({"message": message, "status": "failed"}), 200)
+        return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+    return make_response(jsonify({"message": f'El profesor {name} no existe.'}), 500)
 
 
 @app.route("/pasante/<id>")

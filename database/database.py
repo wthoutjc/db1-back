@@ -82,14 +82,14 @@ class Database():
                 """
                     SELECT DISTINCT JSON_OBJECT(
                         KEY 'id' IS e.codempleado,
-                        KEY 'name' IS e.nomempleado||' '|| e.apellempleado,
+                        KEY 'name' IS e.nomempleado ||' '|| e.apellempleado,
                         KEY 'sede' IS es.nomespacio)
                     FROM
                         empleado      e,
                         empleadocargo ec,
                         espacio       es
                     WHERE
-                        lower(e.nomempleado||' '|| e.apellempleado) = '""" + name + """'
+                        lower(e.nomempleado||' '|| e.apellempleado) = '""" + str(name).lower() + """'
                         AND ec.codespacio = es.codespacio
                         AND ec.idcargo = 'do'
                         AND e.codempleado = ec.codempleado
