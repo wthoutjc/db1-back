@@ -59,6 +59,9 @@ def get_docente(name):
         programacion, success = date_validation(
             database, id_docente, "docente")
         if success:
+            asistencia, success = database.get_asistencia_responsable(json.loads(
+                programacion[0])['idProgra'], json.loads(programacion[0])['idResp'])
+            print(json.loads(asistencia))
             practica_docente, success = database.get_data_practica_docente(
                 json.loads(programacion[0])['idProgra'], name)
             if success:
