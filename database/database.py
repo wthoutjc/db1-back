@@ -252,8 +252,8 @@ class Database():
                         KEY 'id' is  e.codestu,
                         KEY 'name' is  e.nomestu||' '||e.apelestu,
                         KEY 'deporte' is de.nomdeporte,
-                        KEY 'entrenador' is em.codempleado
-                        KEY 'item' is m.itemmiembro
+                        KEY 'entrenador' is em.codempleado,
+                        KEY 'item' is m.itemmiembro,
                         KEY 'id_equipo' is eq.conseequipo
                         )
                     FROM 
@@ -292,12 +292,13 @@ class Database():
                         FROM 
                             asismiemequipo
                         WHERE
-                            itemmiembro = '""" + item + """'
+                            itemmiembro = '""" + str(item) + """'
                     """)
-            rows = cur.fetchone()
-            self.logout_database()
-            if rows:
-                return rows, True
+                rows = cur.fetchone()
+                self.logout_database()  
+                if rows:
+                    return rows, True
+                return [f'No se encontraron asistencias.', False]
             return [f'NO hay asistencias.', False]
         except oracledb.Error as error:
             print('get_asistencia_miembro Error: ' + str(error))
@@ -350,6 +351,7 @@ class Database():
             return [f'Falló el registro de la asistencia para el miembro {item}', False]
 
     def get_asistencia_responsable(self, id_prog, id_res):
+        print( id_prog, id_res)
         try:
             message, success = self.register_asistencia_responsable(
                 id_prog, id_res)

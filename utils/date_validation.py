@@ -43,9 +43,9 @@ def date_validation(database, id_asistente, tipo_asistencia):
                         programacion p
                     WHERE
                             r.codempleado = '""" + id_asistente + """'
-                        AND r.consecprogra = p.consecprogra
-                        AND current_timestamp < to_timestamp(r.fechaini || ' ' || to_char(to_timestamp(r.fechaini || ' ' || p.idhora) + 90/24/60, 'HH24:mi'))
-                        AND current_timestamp > to_timestamp(r.fechafin || ' ' || to_char(to_timestamp(r.fechafin || ' ' || p.idhora) - 15/24/60, 'HH24:mi'))"""
-
+                         AND r.consecprogra = p.consecprogra
+                        AND current_timestamp BETWEEN to_timestamp(r.fechaini || ' ' || to_char(to_timestamp(r.fechaini || ' ' || p.idhora) - 15/24/60, 'HH24:mi'))  
+                        AND to_timestamp(r.fechafin || ' ' || to_char(to_timestamp(r.fechafin || ' ' || p.hor_idhora) + 15/24/60, 'HH24:mi'))
+                    """
         return database.process_date_query(query)  # identrenador
     return False, None
