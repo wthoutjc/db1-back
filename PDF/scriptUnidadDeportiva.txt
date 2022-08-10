@@ -1,0 +1,969 @@
+/*==============================================================*/
+/* DBMS name:      ORACLE Version 12c                           */
+/* Created on:     7/08/2022 3:17:53 p.�m.                      */
+/*==============================================================*/
+
+
+ALTER TABLE asismiemequipo DROP CONSTRAINT fk_asismiem_asistenci_miembroe;
+
+ALTER TABLE asismiemequipo DROP CONSTRAINT fk_asismiem_progasism_programa;
+
+ALTER TABLE asistirresponsable DROP CONSTRAINT fk_asistirr_responsab_responsa;
+
+ALTER TABLE deportetipoelem DROP CONSTRAINT fk_deportet_deporteti_tipoelem;
+
+ALTER TABLE deportetipoelem DROP CONSTRAINT fk_deportet_deporteti_deporte;
+
+ALTER TABLE elemendeportivo DROP CONSTRAINT fk_elemende_elementot_tipoelem;
+
+ALTER TABLE elemendeportivo DROP CONSTRAINT fk_elemende_espacioel_espacio;
+
+ALTER TABLE elemendeportivo DROP CONSTRAINT fk_elemende_estadoele_estado;
+
+ALTER TABLE elemendeportivo DROP CONSTRAINT fk_elemende_marcaelem_marca;
+
+ALTER TABLE empleadocargo DROP CONSTRAINT fk_empleado_cargoempc_cargo;
+
+ALTER TABLE empleadocargo DROP CONSTRAINT fk_empleado_empempcar_empleado;
+
+ALTER TABLE empleadocargo DROP CONSTRAINT fk_empleado_relations_espacio;
+
+ALTER TABLE equipo DROP CONSTRAINT fk_equipo_deporteeq_deporte;
+
+ALTER TABLE equipo DROP CONSTRAINT fk_equipo_entrenado_empleado;
+
+ALTER TABLE espacio DROP CONSTRAINT fk_espacio_espacioes_espacio;
+
+ALTER TABLE espacio DROP CONSTRAINT fk_espacio_espacioti_tipoespa;
+
+ALTER TABLE espaciodeporte DROP CONSTRAINT fk_espaciod_espaciode_deporte;
+
+ALTER TABLE espaciodeporte DROP CONSTRAINT fk_espaciod_espaciode_espacio;
+
+ALTER TABLE estudiante DROP CONSTRAINT fk_estudian_espacioes_espacio;
+
+ALTER TABLE inscritopraclibre DROP CONSTRAINT fk_inscrito_empleadop_empleado;
+
+ALTER TABLE inscritopraclibre DROP CONSTRAINT fk_inscrito_estinscpr_estudian;
+
+ALTER TABLE inscritopraclibre DROP CONSTRAINT fk_inscrito_inscritop_programa;
+
+ALTER TABLE miembroequipo DROP CONSTRAINT fk_miembroe_equipomie_equipo;
+
+ALTER TABLE miembroequipo DROP CONSTRAINT fk_miembroe_estudiant_estudian;
+
+ALTER TABLE prestamo DROP CONSTRAINT fk_prestamo_asistirre_asistirr;
+
+ALTER TABLE prestamo DROP CONSTRAINT fk_prestamo_prestamoe_elemende;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_deportepr_deporte;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_diaprogra_dia;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_progactiv_activida;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_progespac_espacio;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_proghoraf_hora;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_proghorai_hora;
+
+ALTER TABLE programacion DROP CONSTRAINT fk_programa_progperio_periodo;
+
+ALTER TABLE responsable DROP CONSTRAINT fk_responsa_empleador_empleado;
+
+ALTER TABLE responsable DROP CONSTRAINT fk_responsa_estudiant_estudian;
+
+ALTER TABLE responsable DROP CONSTRAINT fk_responsa_responsab_programa;
+
+ALTER TABLE responsable DROP CONSTRAINT fk_responsa_rolrespon_rol;
+
+DROP TABLE actividad CASCADE CONSTRAINTS;
+
+DROP INDEX progasismiemequipo_fk;
+
+DROP INDEX asistenciamiembro_fk;
+
+DROP TABLE asismiemequipo CASCADE CONSTRAINTS;
+
+DROP INDEX responsableasisitirresp_fk;
+
+DROP TABLE asistirresponsable CASCADE CONSTRAINTS;
+
+DROP TABLE cargo CASCADE CONSTRAINTS;
+
+DROP TABLE deporte CASCADE CONSTRAINTS;
+
+DROP INDEX deportetipoelem_fk;
+
+DROP INDEX deportetipoelem2_fk;
+
+DROP TABLE deportetipoelem CASCADE CONSTRAINTS;
+
+DROP TABLE dia CASCADE CONSTRAINTS;
+
+DROP INDEX elementotipoelemento_fk;
+
+DROP INDEX estadoelemdep_fk;
+
+DROP INDEX marcaelem_fk;
+
+DROP INDEX espacioelemendeportivo_fk;
+
+DROP TABLE elemendeportivo CASCADE CONSTRAINTS;
+
+DROP TABLE empleado CASCADE CONSTRAINTS;
+
+DROP INDEX relationship_36_fk;
+
+DROP INDEX empempcargo_fk;
+
+DROP INDEX cargoempcargo_fk;
+
+DROP TABLE empleadocargo CASCADE CONSTRAINTS;
+
+DROP INDEX entrenadorequipo_fk;
+
+DROP INDEX deporteequipo_fk;
+
+DROP TABLE equipo CASCADE CONSTRAINTS;
+
+DROP INDEX espacioespacio_fk;
+
+DROP INDEX espaciotipo_fk;
+
+DROP TABLE espacio CASCADE CONSTRAINTS;
+
+DROP INDEX espaciodeporte_fk;
+
+DROP INDEX espaciodeporte2_fk;
+
+DROP TABLE espaciodeporte CASCADE CONSTRAINTS;
+
+DROP TABLE estado CASCADE CONSTRAINTS;
+
+DROP INDEX espacioestudiante_fk;
+
+DROP TABLE estudiante CASCADE CONSTRAINTS;
+
+DROP TABLE hora CASCADE CONSTRAINTS;
+
+DROP INDEX estinscpraclibre_fk;
+
+DROP INDEX inscritopracticaprogram_fk;
+
+DROP INDEX empleadopraclibre_fk;
+
+DROP TABLE inscritopraclibre CASCADE CONSTRAINTS;
+
+DROP TABLE marca CASCADE CONSTRAINTS;
+
+DROP INDEX estudiantemiemequipo_fk;
+
+DROP INDEX equipomiembroequipo_fk;
+
+DROP TABLE miembroequipo CASCADE CONSTRAINTS;
+
+DROP TABLE periodo CASCADE CONSTRAINTS;
+
+DROP INDEX prestamoelemento_fk;
+
+DROP INDEX asistirrepprestamo_fk;
+
+DROP TABLE prestamo CASCADE CONSTRAINTS;
+
+DROP INDEX progespacio_fk;
+
+DROP INDEX proghorai_fk;
+
+DROP INDEX progperiodo_fk;
+
+DROP INDEX progactividad_fk;
+
+DROP INDEX proghoraf_fk;
+
+DROP INDEX diaprogram_fk;
+
+DROP INDEX deporteprogramacion_fk;
+
+DROP TABLE programacion CASCADE CONSTRAINTS;
+
+DROP INDEX responsableprog_fk;
+
+DROP INDEX estudianteresponsable_fk;
+
+DROP INDEX empleadoresponsable_fk;
+
+DROP INDEX rolresponsable_fk;
+
+DROP TABLE responsable CASCADE CONSTRAINTS;
+
+DROP TABLE rol CASCADE CONSTRAINTS;
+
+DROP TABLE tipoelemento CASCADE CONSTRAINTS;
+
+DROP TABLE tipoespacio CASCADE CONSTRAINTS;
+
+/*==============================================================*/
+/* Table: ACTIVIDAD                                             */
+/*==============================================================*/
+CREATE TABLE actividad (
+    idactividad   VARCHAR2(2) NOT NULL,
+    descactividad VARCHAR2(30) NOT NULL,
+    CONSTRAINT pk_actividad PRIMARY KEY ( idactividad )
+);
+
+/*==============================================================*/
+/* Table: ASISMIEMEQUIPO                                        */
+/*==============================================================*/
+CREATE TABLE asismiemequipo (
+    consecprogra  NUMBER(4, 0) NOT NULL,
+    conmiemequipo NUMBER(4, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    conseequipo   NUMBER(3, 0) NOT NULL,
+    itemmiembro   NUMBER(3, 0) NOT NULL,
+    CONSTRAINT pk_asismiemequipo PRIMARY KEY ( consecprogra,
+                                               conmiemequipo )
+);
+
+/*==============================================================*/
+/* Index: ASISTENCIAMIEMBRO_FK                                  */
+/*==============================================================*/
+CREATE INDEX asistenciamiembro_fk ON
+    asismiemequipo (
+        conseequipo
+    ASC,
+        itemmiembro
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGASISMIEMEQUIPO_FK                                 */
+/*==============================================================*/
+CREATE INDEX progasismiemequipo_fk ON
+    asismiemequipo (
+        consecprogra
+    ASC );
+
+/*==============================================================*/
+/* Table: ASISTIRRESPONSABLE                                    */
+/*==============================================================*/
+CREATE TABLE asistirresponsable (
+    consecprogra  NUMBER(4, 0) NOT NULL,
+    consecres     NUMBER(4, 0) NOT NULL,
+    consecasisres NUMBER(4, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    fechaasisres  DATE NOT NULL,
+    horaasisres   DATE NOT NULL,
+    CONSTRAINT pk_asistirresponsable PRIMARY KEY ( consecprogra,
+                                                   consecres,
+                                                   consecasisres )
+);
+
+/*==============================================================*/
+/* Index: RESPONSABLEASISITIRRESP_FK                            */
+/*==============================================================*/
+CREATE INDEX responsableasisitirresp_fk ON
+    asistirresponsable (
+        consecprogra
+    ASC,
+        consecres
+    ASC );
+
+/*==============================================================*/
+/* Table: CARGO                                                 */
+/*==============================================================*/
+CREATE TABLE cargo (
+    idcargo  VARCHAR2(2) NOT NULL,
+    descargo VARCHAR2(20) NOT NULL,
+    CONSTRAINT pk_cargo PRIMARY KEY ( idcargo )
+);
+
+/*==============================================================*/
+/* Table: DEPORTE                                               */
+/*==============================================================*/
+CREATE TABLE deporte (
+    iddeporte  VARCHAR2(2) NOT NULL,
+    nomdeporte VARCHAR2(20) NOT NULL,
+    CONSTRAINT pk_deporte PRIMARY KEY ( iddeporte )
+);
+
+/*==============================================================*/
+/* Table: DEPORTETIPOELEM                                       */
+/*==============================================================*/
+CREATE TABLE deportetipoelem (
+    idtipoelemento VARCHAR2(2) NOT NULL,
+    iddeporte      VARCHAR2(2) NOT NULL,
+    CONSTRAINT pk_deportetipoelem PRIMARY KEY ( idtipoelemento,
+                                                iddeporte )
+);
+
+/*==============================================================*/
+/* Index: DEPORTETIPOELEM2_FK                                   */
+/*==============================================================*/
+CREATE INDEX deportetipoelem2_fk ON
+    deportetipoelem (
+        iddeporte
+    ASC );
+
+/*==============================================================*/
+/* Index: DEPORTETIPOELEM_FK                                    */
+/*==============================================================*/
+CREATE INDEX deportetipoelem_fk ON
+    deportetipoelem (
+        idtipoelemento
+    ASC );
+
+/*==============================================================*/
+/* Table: DIA                                                   */
+/*==============================================================*/
+CREATE TABLE dia (
+    iddia  VARCHAR2(1) NOT NULL,
+    nomdia VARCHAR2(10) NOT NULL,
+    CONSTRAINT pk_dia PRIMARY KEY ( iddia )
+);
+
+/*==============================================================*/
+/* Table: ELEMENDEPORTIVO                                       */
+/*==============================================================*/
+CREATE TABLE elemendeportivo (
+    consecelemento NUMBER(5, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    codespacio     VARCHAR2(2) NOT NULL,
+    idmarca        VARCHAR2(2) NOT NULL,
+    idestado       VARCHAR2(2) NOT NULL,
+    idtipoelemento VARCHAR2(2) NOT NULL,
+    fecharegistro  DATE NOT NULL,
+    CONSTRAINT pk_elemendeportivo PRIMARY KEY ( consecelemento )
+);
+
+/*==============================================================*/
+/* Index: ESPACIOELEMENDEPORTIVO_FK                             */
+/*==============================================================*/
+CREATE INDEX espacioelemendeportivo_fk ON
+    elemendeportivo (
+        codespacio
+    ASC );
+
+/*==============================================================*/
+/* Index: MARCAELEM_FK                                          */
+/*==============================================================*/
+CREATE INDEX marcaelem_fk ON
+    elemendeportivo (
+        idmarca
+    ASC );
+
+/*==============================================================*/
+/* Index: ESTADOELEMDEP_FK                                      */
+/*==============================================================*/
+CREATE INDEX estadoelemdep_fk ON
+    elemendeportivo (
+        idestado
+    ASC );
+
+/*==============================================================*/
+/* Index: ELEMENTOTIPOELEMENTO_FK                               */
+/*==============================================================*/
+CREATE INDEX elementotipoelemento_fk ON
+    elemendeportivo (
+        idtipoelemento
+    ASC );
+
+/*==============================================================*/
+/* Table: EMPLEADO                                              */
+/*==============================================================*/
+CREATE TABLE empleado (
+    codempleado   VARCHAR2(4) NOT NULL,
+    nomempleado   VARCHAR2(20) NOT NULL,
+    apellempleado VARCHAR2(20) NOT NULL,
+    fecharegistro DATE NOT NULL,
+    correoud      VARCHAR2(30),
+    CONSTRAINT pk_empleado PRIMARY KEY ( codempleado )
+);
+
+/*==============================================================*/
+/* Table: EMPLEADOCARGO                                         */
+/*==============================================================*/
+CREATE TABLE empleadocargo (
+    consec      NUMBER(3, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    idcargo     VARCHAR2(2) NOT NULL,
+    codempleado VARCHAR2(4) NOT NULL,
+    codespacio  VARCHAR2(2) NOT NULL,
+    fechacargo  DATE NOT NULL,
+    fechafincar DATE,
+    CONSTRAINT pk_empleadocargo PRIMARY KEY ( consec )
+);
+
+/*==============================================================*/
+/* Index: CARGOEMPCARGO_FK                                      */
+/*==============================================================*/
+CREATE INDEX cargoempcargo_fk ON
+    empleadocargo (
+        idcargo
+    ASC );
+
+/*==============================================================*/
+/* Index: EMPEMPCARGO_FK                                        */
+/*==============================================================*/
+CREATE INDEX empempcargo_fk ON
+    empleadocargo (
+        codempleado
+    ASC );
+
+/*==============================================================*/
+/* Index: RELATIONSHIP_36_FK                                    */
+/*==============================================================*/
+CREATE INDEX relationship_36_fk ON
+    empleadocargo (
+        codespacio
+    ASC );
+
+/*==============================================================*/
+/* Table: EQUIPO                                                */
+/*==============================================================*/
+CREATE TABLE equipo (
+    conseequipo NUMBER(3, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    iddeporte   VARCHAR2(2) NOT NULL,
+    codempleado VARCHAR2(4) NOT NULL,
+    fecharesol  DATE NOT NULL,
+    CONSTRAINT pk_equipo PRIMARY KEY ( conseequipo )
+);
+
+/*==============================================================*/
+/* Index: DEPORTEEQUIPO_FK                                      */
+/*==============================================================*/
+CREATE INDEX deporteequipo_fk ON
+    equipo (
+        iddeporte
+    ASC );
+
+/*==============================================================*/
+/* Index: ENTRENADOREQUIPO_FK                                   */
+/*==============================================================*/
+CREATE INDEX entrenadorequipo_fk ON
+    equipo (
+        codempleado
+    ASC );
+
+/*==============================================================*/
+/* Table: ESPACIO                                               */
+/*==============================================================*/
+CREATE TABLE espacio (
+    codespacio     VARCHAR2(2) NOT NULL,
+    idtipoespacio  VARCHAR2(2) NOT NULL,
+    esp_codespacio VARCHAR2(2),
+    nomespacio     VARCHAR2(30) NOT NULL,
+    CONSTRAINT pk_espacio PRIMARY KEY ( codespacio )
+);
+
+/*==============================================================*/
+/* Index: ESPACIOTIPO_FK                                        */
+/*==============================================================*/
+CREATE INDEX espaciotipo_fk ON
+    espacio (
+        idtipoespacio
+    ASC );
+
+/*==============================================================*/
+/* Index: ESPACIOESPACIO_FK                                     */
+/*==============================================================*/
+CREATE INDEX espacioespacio_fk ON
+    espacio (
+        esp_codespacio
+    ASC );
+
+/*==============================================================*/
+/* Table: ESPACIODEPORTE                                        */
+/*==============================================================*/
+CREATE TABLE espaciodeporte (
+    iddeporte  VARCHAR2(2) NOT NULL,
+    codespacio VARCHAR2(2) NOT NULL,
+    CONSTRAINT pk_espaciodeporte PRIMARY KEY ( iddeporte,
+                                               codespacio )
+);
+
+/*==============================================================*/
+/* Index: ESPACIODEPORTE2_FK                                    */
+/*==============================================================*/
+CREATE INDEX espaciodeporte2_fk ON
+    espaciodeporte (
+        codespacio
+    ASC );
+
+/*==============================================================*/
+/* Index: ESPACIODEPORTE_FK                                     */
+/*==============================================================*/
+CREATE INDEX espaciodeporte_fk ON
+    espaciodeporte (
+        iddeporte
+    ASC );
+
+/*==============================================================*/
+/* Table: ESTADO                                                */
+/*==============================================================*/
+CREATE TABLE estado (
+    idestado   VARCHAR2(2) NOT NULL,
+    descestado VARCHAR2(20) NOT NULL,
+    CONSTRAINT pk_estado PRIMARY KEY ( idestado )
+);
+
+/*==============================================================*/
+/* Table: ESTUDIANTE                                            */
+/*==============================================================*/
+CREATE TABLE estudiante (
+    codestu      VARCHAR2(12) NOT NULL,
+    codespacio   VARCHAR2(2) NOT NULL,
+    nomestu      VARCHAR2(30) NOT NULL,
+    apelestu     VARCHAR2(30) NOT NULL,
+    fecharegestu DATE NOT NULL,
+    correoudestu VARCHAR2(30) NOT NULL,
+    fechanacestu DATE NOT NULL,
+    CONSTRAINT pk_estudiante PRIMARY KEY ( codestu )
+);
+
+/*==============================================================*/
+/* Index: ESPACIOESTUDIANTE_FK                                  */
+/*==============================================================*/
+CREATE INDEX espacioestudiante_fk ON
+    estudiante (
+        codespacio
+    ASC );
+
+/*==============================================================*/
+/* Table: HORA                                                  */
+/*==============================================================*/
+CREATE TABLE hora (
+    idhora VARCHAR2(5) NOT NULL,
+    CONSTRAINT pk_hora PRIMARY KEY ( idhora )
+);
+
+/*==============================================================*/
+/* Table: INSCRITOPRACLIBRE                                     */
+/*==============================================================*/
+CREATE TABLE inscritopraclibre (
+    consecprogra NUMBER(4, 0) NOT NULL,
+    consecpract  NUMBER(4)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    codempleado  VARCHAR2(4),
+    codestu      VARCHAR2(12),
+    CONSTRAINT pk_inscritopraclibre PRIMARY KEY ( consecprogra,
+                                                  consecpract )
+);
+
+/*==============================================================*/
+/* Index: EMPLEADOPRACLIBRE_FK                                  */
+/*==============================================================*/
+CREATE INDEX empleadopraclibre_fk ON
+    inscritopraclibre (
+        codempleado
+    ASC );
+
+/*==============================================================*/
+/* Index: INSCRITOPRACTICAPROGRAM_FK                            */
+/*==============================================================*/
+CREATE INDEX inscritopracticaprogram_fk ON
+    inscritopraclibre (
+        consecprogra
+    ASC );
+
+/*==============================================================*/
+/* Index: ESTINSCPRACLIBRE_FK                                   */
+/*==============================================================*/
+CREATE INDEX estinscpraclibre_fk ON
+    inscritopraclibre (
+        codestu
+    ASC );
+
+/*==============================================================*/
+/* Table: MARCA                                                 */
+/*==============================================================*/
+CREATE TABLE marca (
+    idmarca  VARCHAR2(2) NOT NULL,
+    nommarca VARCHAR2(20) NOT NULL,
+    CONSTRAINT pk_marca PRIMARY KEY ( idmarca )
+);
+
+/*==============================================================*/
+/* Table: MIEMBROEQUIPO                                         */
+/*==============================================================*/
+CREATE TABLE miembroequipo (
+    conseequipo NUMBER(3, 0) NOT NULL,
+    itemmiembro NUMBER(3, 0) NOT NULL,
+    codestu     VARCHAR2(12) NOT NULL,
+    CONSTRAINT pk_miembroequipo PRIMARY KEY ( conseequipo,
+                                              itemmiembro )
+);
+
+/*==============================================================*/
+/* Index: EQUIPOMIEMBROEQUIPO_FK                                */
+/*==============================================================*/
+CREATE INDEX equipomiembroequipo_fk ON
+    miembroequipo (
+        conseequipo
+    ASC );
+
+/*==============================================================*/
+/* Index: ESTUDIANTEMIEMEQUIPO_FK                               */
+/*==============================================================*/
+CREATE INDEX estudiantemiemequipo_fk ON
+    miembroequipo (
+        codestu
+    ASC );
+
+/*==============================================================*/
+/* Table: PERIODO                                               */
+/*==============================================================*/
+CREATE TABLE periodo (
+    idperiodo VARCHAR2(5) NOT NULL,
+    CONSTRAINT pk_periodo PRIMARY KEY ( idperiodo )
+);
+
+/*==============================================================*/
+/* Table: PRESTAMO                                              */
+/*==============================================================*/
+CREATE TABLE prestamo (
+    consecprestamo NUMBER(4, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    consecprogra   NUMBER(4, 0) NOT NULL,
+    consecres      NUMBER(4, 0) NOT NULL,
+    consecasisres  NUMBER(4, 0) NOT NULL,
+    consecelemento NUMBER(5, 0) NOT NULL,
+    CONSTRAINT pk_prestamo PRIMARY KEY ( consecprestamo )
+);
+
+/*==============================================================*/
+/* Index: ASISTIRREPPRESTAMO_FK                                 */
+/*==============================================================*/
+CREATE INDEX asistirrepprestamo_fk ON
+    prestamo (
+        consecprogra
+    ASC,
+        consecres
+    ASC,
+        consecasisres
+    ASC );
+
+/*==============================================================*/
+/* Index: PRESTAMOELEMENTO_FK                                   */
+/*==============================================================*/
+CREATE INDEX prestamoelemento_fk ON
+    prestamo (
+        consecelemento
+    ASC );
+
+/*==============================================================*/
+/* Table: PROGRAMACION                                          */
+/*==============================================================*/
+CREATE TABLE programacion (
+    consecprogra NUMBER(4, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    iddeporte    VARCHAR2(2) NOT NULL,
+    iddia        VARCHAR2(1) NOT NULL,
+    idhora       VARCHAR2(5) NOT NULL,
+    idactividad  VARCHAR2(2) NOT NULL,
+    idperiodo    VARCHAR2(5) NOT NULL,
+    hor_idhora   VARCHAR2(5) NOT NULL,
+    codespacio   VARCHAR2(2) NOT NULL,
+    cupo         NUMBER(3, 0) NOT NULL,
+    noinscrito   NUMBER(3, 0),
+    CONSTRAINT pk_programacion PRIMARY KEY ( consecprogra )
+);
+
+/*==============================================================*/
+/* Index: DEPORTEPROGRAMACION_FK                                */
+/*==============================================================*/
+CREATE INDEX deporteprogramacion_fk ON
+    programacion (
+        iddeporte
+    ASC );
+
+/*==============================================================*/
+/* Index: DIAPROGRAM_FK                                         */
+/*==============================================================*/
+CREATE INDEX diaprogram_fk ON
+    programacion (
+        iddia
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGHORAF_FK                                          */
+/*==============================================================*/
+CREATE INDEX proghoraf_fk ON
+    programacion (
+        idhora
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGACTIVIDAD_FK                                      */
+/*==============================================================*/
+CREATE INDEX progactividad_fk ON
+    programacion (
+        idactividad
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGPERIODO_FK                                        */
+/*==============================================================*/
+CREATE INDEX progperiodo_fk ON
+    programacion (
+        idperiodo
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGHORAI_FK                                          */
+/*==============================================================*/
+CREATE INDEX proghorai_fk ON
+    programacion (
+        hor_idhora
+    ASC );
+
+/*==============================================================*/
+/* Index: PROGESPACIO_FK                                        */
+/*==============================================================*/
+CREATE INDEX progespacio_fk ON
+    programacion (
+        codespacio
+    ASC );
+
+/*==============================================================*/
+/* Table: RESPONSABLE                                           */
+/*==============================================================*/
+CREATE TABLE responsable (
+    consecprogra NUMBER(4, 0) NOT NULL,
+    consecres    NUMBER(4, 0)
+        GENERATED AS IDENTITY ( START WITH 1 NOCYCLE NOORDER ),
+    idrol        VARCHAR2(1),
+    codempleado  VARCHAR2(4) NOT NULL,
+    codestu      VARCHAR2(12),
+    fechaini     DATE NOT NULL,
+    fechafin     DATE NOT NULL,
+    CONSTRAINT pk_responsable PRIMARY KEY ( consecprogra,
+                                            consecres )
+);
+
+/*==============================================================*/
+/* Index: ROLRESPONSABLE_FK                                     */
+/*==============================================================*/
+CREATE INDEX rolresponsable_fk ON
+    responsable (
+        idrol
+    ASC );
+
+/*==============================================================*/
+/* Index: EMPLEADORESPONSABLE_FK                                */
+/*==============================================================*/
+CREATE INDEX empleadoresponsable_fk ON
+    responsable (
+        codempleado
+    ASC );
+
+/*==============================================================*/
+/* Index: ESTUDIANTERESPONSABLE_FK                              */
+/*==============================================================*/
+CREATE INDEX estudianteresponsable_fk ON
+    responsable (
+        codestu
+    ASC );
+
+/*==============================================================*/
+/* Index: RESPONSABLEPROG_FK                                    */
+/*==============================================================*/
+CREATE INDEX responsableprog_fk ON
+    responsable (
+        consecprogra
+    ASC );
+
+/*==============================================================*/
+/* Table: ROL                                                   */
+/*==============================================================*/
+CREATE TABLE rol (
+    idrol   VARCHAR2(1) NOT NULL,
+    descrol VARCHAR2(30) NOT NULL,
+    CONSTRAINT pk_rol PRIMARY KEY ( idrol )
+);
+
+/*==============================================================*/
+/* Table: TIPOELEMENTO                                          */
+/*==============================================================*/
+CREATE TABLE tipoelemento (
+    idtipoelemento   VARCHAR2(2) NOT NULL,
+    desctipoelemento VARCHAR2(40) NOT NULL,
+    CONSTRAINT pk_tipoelemento PRIMARY KEY ( idtipoelemento )
+);
+
+/*==============================================================*/
+/* Table: TIPOESPACIO                                           */
+/*==============================================================*/
+CREATE TABLE tipoespacio (
+    idtipoespacio   VARCHAR2(2) NOT NULL,
+    desctipoespacio VARCHAR2(30) NOT NULL,
+    CONSTRAINT pk_tipoespacio PRIMARY KEY ( idtipoespacio )
+);
+
+ALTER TABLE asismiemequipo
+    ADD CONSTRAINT fk_asismiem_asistenci_miembroe FOREIGN KEY ( conseequipo,
+                                                                itemmiembro )
+        REFERENCES miembroequipo ( conseequipo,
+                                   itemmiembro );
+
+ALTER TABLE asismiemequipo
+    ADD CONSTRAINT fk_asismiem_progasism_programa FOREIGN KEY ( consecprogra )
+        REFERENCES programacion ( consecprogra );
+
+ALTER TABLE asistirresponsable
+    ADD CONSTRAINT fk_asistirr_responsab_responsa FOREIGN KEY ( consecprogra,
+                                                                consecres )
+        REFERENCES responsable ( consecprogra,
+                                 consecres );
+
+ALTER TABLE deportetipoelem
+    ADD CONSTRAINT fk_deportet_deporteti_tipoelem FOREIGN KEY ( idtipoelemento )
+        REFERENCES tipoelemento ( idtipoelemento );
+
+ALTER TABLE deportetipoelem
+    ADD CONSTRAINT fk_deportet_deporteti_deporte FOREIGN KEY ( iddeporte )
+        REFERENCES deporte ( iddeporte );
+
+ALTER TABLE elemendeportivo
+    ADD CONSTRAINT fk_elemende_elementot_tipoelem FOREIGN KEY ( idtipoelemento )
+        REFERENCES tipoelemento ( idtipoelemento );
+
+ALTER TABLE elemendeportivo
+    ADD CONSTRAINT fk_elemende_espacioel_espacio FOREIGN KEY ( codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE elemendeportivo
+    ADD CONSTRAINT fk_elemende_estadoele_estado FOREIGN KEY ( idestado )
+        REFERENCES estado ( idestado );
+
+ALTER TABLE elemendeportivo
+    ADD CONSTRAINT fk_elemende_marcaelem_marca FOREIGN KEY ( idmarca )
+        REFERENCES marca ( idmarca );
+
+ALTER TABLE empleadocargo
+    ADD CONSTRAINT fk_empleado_cargoempc_cargo FOREIGN KEY ( idcargo )
+        REFERENCES cargo ( idcargo );
+
+ALTER TABLE empleadocargo
+    ADD CONSTRAINT fk_empleado_empempcar_empleado FOREIGN KEY ( codempleado )
+        REFERENCES empleado ( codempleado );
+
+ALTER TABLE empleadocargo
+    ADD CONSTRAINT fk_empleado_relations_espacio FOREIGN KEY ( codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE equipo
+    ADD CONSTRAINT fk_equipo_deporteeq_deporte FOREIGN KEY ( iddeporte )
+        REFERENCES deporte ( iddeporte );
+
+ALTER TABLE equipo
+    ADD CONSTRAINT fk_equipo_entrenado_empleado FOREIGN KEY ( codempleado )
+        REFERENCES empleado ( codempleado );
+
+ALTER TABLE espacio
+    ADD CONSTRAINT fk_espacio_espacioes_espacio FOREIGN KEY ( esp_codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE espacio
+    ADD CONSTRAINT fk_espacio_espacioti_tipoespa FOREIGN KEY ( idtipoespacio )
+        REFERENCES tipoespacio ( idtipoespacio );
+
+ALTER TABLE espaciodeporte
+    ADD CONSTRAINT fk_espaciod_espaciode_deporte FOREIGN KEY ( iddeporte )
+        REFERENCES deporte ( iddeporte );
+
+ALTER TABLE espaciodeporte
+    ADD CONSTRAINT fk_espaciod_espaciode_espacio FOREIGN KEY ( codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE estudiante
+    ADD CONSTRAINT fk_estudian_espacioes_espacio FOREIGN KEY ( codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE inscritopraclibre
+    ADD CONSTRAINT fk_inscrito_empleadop_empleado FOREIGN KEY ( codempleado )
+        REFERENCES empleado ( codempleado );
+
+ALTER TABLE inscritopraclibre
+    ADD CONSTRAINT fk_inscrito_estinscpr_estudian FOREIGN KEY ( codestu )
+        REFERENCES estudiante ( codestu );
+
+ALTER TABLE inscritopraclibre
+    ADD CONSTRAINT fk_inscrito_inscritop_programa FOREIGN KEY ( consecprogra )
+        REFERENCES programacion ( consecprogra );
+
+ALTER TABLE miembroequipo
+    ADD CONSTRAINT fk_miembroe_equipomie_equipo FOREIGN KEY ( conseequipo )
+        REFERENCES equipo ( conseequipo );
+
+ALTER TABLE miembroequipo
+    ADD CONSTRAINT fk_miembroe_estudiant_estudian FOREIGN KEY ( codestu )
+        REFERENCES estudiante ( codestu );
+
+ALTER TABLE prestamo
+    ADD CONSTRAINT fk_prestamo_asistirre_asistirr FOREIGN KEY ( consecprogra,
+                                                                consecres,
+                                                                consecasisres )
+        REFERENCES asistirresponsable ( consecprogra,
+                                        consecres,
+                                        consecasisres );
+
+ALTER TABLE prestamo
+    ADD CONSTRAINT fk_prestamo_prestamoe_elemende FOREIGN KEY ( consecelemento )
+        REFERENCES elemendeportivo ( consecelemento );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_deportepr_deporte FOREIGN KEY ( iddeporte )
+        REFERENCES deporte ( iddeporte );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_diaprogra_dia FOREIGN KEY ( iddia )
+        REFERENCES dia ( iddia );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_progactiv_activida FOREIGN KEY ( idactividad )
+        REFERENCES actividad ( idactividad );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_progespac_espacio FOREIGN KEY ( codespacio )
+        REFERENCES espacio ( codespacio );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_proghoraf_hora FOREIGN KEY ( idhora )
+        REFERENCES hora ( idhora );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_proghorai_hora FOREIGN KEY ( hor_idhora )
+        REFERENCES hora ( idhora );
+
+ALTER TABLE programacion
+    ADD CONSTRAINT fk_programa_progperio_periodo FOREIGN KEY ( idperiodo )
+        REFERENCES periodo ( idperiodo );
+
+ALTER TABLE responsable
+    ADD CONSTRAINT fk_responsa_empleador_empleado FOREIGN KEY ( codempleado )
+        REFERENCES empleado ( codempleado );
+
+ALTER TABLE responsable
+    ADD CONSTRAINT fk_responsa_estudiant_estudian FOREIGN KEY ( codestu )
+        REFERENCES estudiante ( codestu );
+
+ALTER TABLE responsable
+    ADD CONSTRAINT fk_responsa_responsab_programa FOREIGN KEY ( consecprogra )
+        REFERENCES programacion ( consecprogra );
+
+ALTER TABLE responsable
+    ADD CONSTRAINT fk_responsa_rolrespon_rol FOREIGN KEY ( idrol )
+        REFERENCES rol ( idrol );
+
+
+
+
+
+
+
+
+
+      
+    
