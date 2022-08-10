@@ -3,6 +3,7 @@ import oracledb
 
 from database.connection import Connection
 
+
 class Database():
     def __init__(self):
         '''
@@ -252,9 +253,15 @@ class Database():
                         KEY 'name' is  e.nomestu||' '||e.apelestu,
                         KEY 'deporte' is de.nomdeporte,
                         KEY 'entrenador' is em.codempleado
-                    )
+                        KEY 'item' is m.itemmiembro
+                        KEY 'id_equipo' is eq.conseequipo
+                        )
                     FROM 
-                        estudiante e, equipo eq, miembroequipo m, deporte de, empleado em
+                        estudiante e, 
+                        equipo eq, 
+                        miembroequipo m, 
+                        deporte de, 
+                        empleado em
                     WHERE  
                         e.codestu = '""" + id_miembro + """'
                         and eq.conseequipo = '""" + id_equipo + """'
@@ -272,26 +279,29 @@ class Database():
             print('read_miembro Error: ' + str(error))
             return [f'Falló la consulta del miembro con id {id_miembro}', False]
 
-    def get_data_entrenamiento(self, id_entrenador, id_prog):
+    def get_asistencia_miembro(self, id_prog, id_equipo, item):
         try:
-            cur = self.login_database()
-            cur.execute(
-                """
-                    INSERT
-                """)  # curso, deporte, espacio, numestud
+            message, success = self.register_asistencia_miembro(
+                id_prog, id_equipo, item)
+            if success:
+                cur = self.login_database()
+                cur.execute(
+                    """
+                        SELECT JSON_OBJECT
+                            (*)
+                        FROM 
+                            asismiemequipo
+                        WHERE
+                            itemmiembro = '""" + item + """'
+                    """)
             rows = cur.fetchone()
-            cur.execute(
-                """
-                    SELECT
-                """
-            )
             self.logout_database()
             if rows:
                 return rows, True
-            return [f'El docente llamado {id} no existe.', False]
+            return [f'NO hay asistencias.', False]
         except oracledb.Error as error:
-            print('get_data_entrenamiento Error: ' + str(error))
-            return [f'Falló la consulta del docente', False]
+            print('get_asistencia_miembro Error: ' + str(error))
+            return [f'Falló la consulta de la asistencia', False]
 
     def process_date_query(self, query):
         try:
@@ -306,52 +316,77 @@ class Database():
             print('process_date_query Error: ' + str(error))
             return [f'Falló la consulta de la fecha', False]
 
-    def update_empleado(self, request_data):
+    def register_prestamo(self, programacion):
+        pass
+
+    def update_materiales(self, request_data):
         try:
             cur = self.login_database()
-            query = "UPDATE EMPLEADO SET IDSEDE = '" + request_data['idSede'] + "', IDESPACIO = '" + request_data['idEspacio'] + "', IDEQUIPO = '" + request_data["idEquipo"] + "', SUPIDEQUIPO = " + str(
-                request_data["supIdEquipo"] or 'null') + ", IDUDEPORTIVA = '" + request_data["idUDeportiva"] + "', NOMBRE = '" + request_data["nombre"] + "', APELLIDO = '" + request_data["apellido"] + "' WHERE CODEMPLEADO = '" + request_data["CODEMPLEADO"] + "'"
+            query = "UPDATE ELEMENDEPORTIVO SET IDESTADO = '" + \
+                request_data['idEstado'] + "' WHERE CONSEC = '" + \
+                    request_data["CODEMPLEADO"] + "'"
             cur.execute(query)
             self.connection.based.commit()
             self.logout_database()
             return [f'Empleado con código {request_data["CODEMPLEADO"]} actualizado exitosamente', True]
         except oracledb.Error as error:
-            print('update_empleado Error: ' + str(error))
+            print('update_materiales Error: ' + str(error))
             return [f'Falló el proceso de actualizar el empleado con código {request_data["CODEMPLEADO"]}', False]
 
-    def delete_empleado(self, id):
-        print(f"Borrando {id}")
+    def register_asistencia_miembro(self, id_prog, id_equipo, item):
         try:
             cur = self.login_database()
-            query = "DELETE FROM EMPLEADO WHERE CODEMPLEADO = '" + id + "'"
-            cur.execute(query)
-            self.connection.based.commit()
-            self.logout_database()
-            return [f'Empleado con código {id} eliminado satisfactoriamente', True]
-        except oracledb.Error as error:
-            print('delete_empleado Error: ' + str(error))
-            return [f'Falló el proceso de borrar el empleado con código {id}', False]
-
-    def register_empleado(self, request_data):
-        try:
-            cur = self.login_database()
-            query = "INSERT INTO EMPLEADO VALUES(:CODEMPLEADO, :idsede, :idespacio, :idequipo, :supidequipo, :idudeportiva, :nombre, :apellido)"
+            query = "INSERT INTO ASISMIEMEQUIPO VALUES(:id_prog, default, :id_equipo, :item)"
             cur.execute(query, [
-                request_data["CODEMPLEADO"],
-                request_data["idSede"],
-                request_data["idEspacio"],
-                request_data["idEquipo"],
-                request_data["supIdEquipo"],
-                request_data["idUDeportiva"],
-                request_data["nombre"],
-                request_data["apellido"]
+                id_prog,
+                id_equipo,
+                item
             ])
             self.connection.based.commit()
             self.logout_database()
-            return [f'Empleado con código {request_data["CODEMPLEADO"]} registrado exitosamente', True]
+            return [f'La asistencia del miembro {item} se ha registrado exitosamente', True]
         except oracledb.Error as error:
-            print('register_empleado Error: ' + str(error))
-            return [f'Falló el registro de empleado con código {request_data["CODEMPLEADO"]}', False]
+            print('register_asistencia Error: ' + str(error))
+            return [f'Falló el registro de la asistencia para el miembro {item}', False]
+
+    def get_asistencia_responsable(self, id_prog, id_res):
+        try:
+            message, success = self.register_asistencia_responsable(
+                id_prog, id_res)
+            if success:
+                cur = self.login_database()
+                cur.execute(
+                    """
+                        SELECT JSON_OBJECT
+                            (*)
+                        FROM 
+                            asistirresponsable
+                        WHERE
+                            consecres = '""" + id_res + """';
+                    """)
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'NO se lleno asistencia.', False]
+        except oracledb.Error as error:
+            print('get_asistencia_responsable Error: ' + str(error))
+            return [f'Falló al registrar la asistencia', False]
+
+    def register_asistencia_responsable(self, id_prog, id_res):
+        try:
+            cur = self.login_database()
+            query = "INSERT INTO ASISTIRRESPONSABLE VALUES(:id_prog, :id_res, default, current_date, sysdate)"
+            cur.execute(query, [
+                id_prog,
+                id_res,
+            ])
+            self.connection.based.commit()
+            self.logout_database()
+            return [f'La asistencia del responsable se ha registrado exitosamente', True]
+        except oracledb.Error as error:
+            print('register_asistencia Error: ' + str(error))
+            return [f'Falló el registro de la asistencia del responsable', False]
 
     def get_materiales(self, id_sede, id_deporte):
         try:
@@ -421,4 +456,3 @@ class Database():
             print('read_docente Error: ' + str(error))
 
             return [f'Falló la consulta de materiales', False]
-
