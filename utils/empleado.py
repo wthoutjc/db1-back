@@ -10,5 +10,13 @@ class Auxiliar():
     def set_data(self, data):
         self.name = data['name']
         self.sede = data['sede']
-        self.date= data['date']
+        self.date = data['date']
         self.time = data['time']
+
+
+class Director():
+    def __init__(self):
+        self.sede = ''
+
+    def set_data(self, data):
+        self.sede = data['sede']

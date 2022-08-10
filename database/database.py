@@ -295,7 +295,7 @@ class Database():
                             itemmiembro = '""" + str(item) + """'
                     """)
                 rows = cur.fetchone()
-                self.logout_database()  
+                self.logout_database()
                 if rows:
                     return rows, True
                 return [f'No se encontraron asistencias.', False]
@@ -351,7 +351,7 @@ class Database():
             return [f'Falló el registro de la asistencia para el miembro {item}', False]
 
     def get_asistencia_responsable(self, id_prog, id_res):
-        print( id_prog, id_res)
+        print(id_prog, id_res)
         try:
             message, success = self.register_asistencia_responsable(
                 id_prog, id_res)
@@ -430,12 +430,14 @@ class Database():
         except oracledb.Error as error:
             print('read_docente Error: ' + str(error))
             return [f'Falló la consulta de materiales', False]
-    
+
     def prestar(self, data):
         try:
             cursor = self.login_database()
             for item in data:
-                query = "UPDATE ELEMENDEPORTIVO SET IDESTADO = 'pr' WHERE CONSECELEMENTO ='" + str(item["idElemento"]) + "'AND CODESPACIO = '" + str(item["idEspacio"]) + "'"
+                query = "UPDATE ELEMENDEPORTIVO SET IDESTADO = 'pr' WHERE CONSECELEMENTO ='" + \
+                    str(item["idElemento"]) + "'AND CODESPACIO = '" + \
+                    str(item["idEspacio"]) + "'"
                 cursor.execute(query)
                 self.connection.based.commit()
             self.logout_database()
@@ -444,4 +446,75 @@ class Database():
             print('prestar Error: ' + str(error))
             return [f'Falló el prestamo de materiales', False]
 
+    def get_reporte_miembros(self, sede):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT JSON_OBJECT (
+                        KEY 'cod' is e.codestu,
+                        KEY 'nom' is d.nomdeporte,
+                        KEY 'nomesp' is es.nomespacio,
+                        KEY 'sum' is SUM(
+                                    CASE
+                                        WHEN length(p.idhora) = 4
+                                            AND length(p.hor_idhora) = 4 THEN
+                                            TO_NUMBER(substr(p.hor_idhora, 0, 1)) - TO_NUMBER(substr(p.idhora, 0, 1))
+                                        ELSE
+                                            TO_NUMBER(substr(p.hor_idhora, 0, 2)) - TO_NUMBER(substr(p.idhora, 0, 2))
+                                    END) 
+                        )
+                    FROM
+                        programacion      p,
+                        asismiemequipo    am,
+                        miembroequipo     me,
+                        estudiante        e,
+                        equipo            eq,
+                        deporte           d,
+                        espaciodeporte    ed,
+                        espacio           es,
+                        tipoespacio       te
+                    WHERE
+                            p.consecprogra = am.consecprogra
+                        AND am.itemmiembro = me.itemmiembro
+                        AND me.codestu = e.codestu
+                        AND eq.conseequipo = me.conseequipo
+                        AND d.iddeporte = eq.iddeporte
+                        AND d.iddeporte = ed.iddeporte
+                        AND es.codespacio = e.codespacio
+                        AND es.idtipoespacio = te.idtipoespacio
+                        AND lower(es.nomespacio) LIKE '"""+sede+"""'
+                    GROUP BY
+                        e.codestu,
+                        d.nomdeporte,
+                        es.nomespacio
+                """)
+            rows = cur.fetchmany()
+            print(rows)
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'No se pudieron obtener las asistencias', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta de materiales', False]
 
+    def get_test(self):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """
+                    SELECT 
+                        *
+                    FROM
+                        empleado
+                """)
+            rows = cur.fetchmany()
+            print(rows)
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'No se pudieron obtener las asistencias', False]
+        except oracledb.Error as error:
+            print('read_docente Error: ' + str(error))
+            return [f'Falló la consulta de materiales', False]
