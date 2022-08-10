@@ -38,7 +38,6 @@ class Database():
             query = "SELECT JSON_OBJECT(*) FROM EMPLEADO ORDER BY CODEMPLEADO OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"
             cur.execute(query, [offset, limit])
             rows = cur.fetchall()
-            print(rows)
             self.logout_database()
             if rows:
                 return rows, True
@@ -160,15 +159,15 @@ class Database():
                         AND ec.idcargo = 'do'
                         AND e.idtipoespacio = te.idtipoespacio
                         AND r.codempleado = doc.codempleado
-                        AND p.consecprogra = '""" + id_prog + """'
+                        AND p.consecprogra = '""" + str(id_prog) + """'
                         AND r.consecprogra = p.consecprogra
-                        AND ( lower(doc.nomempleado|| ' '|| doc.apellempleado) ) LIKE '""" + name + """'
+                        AND ( lower(doc.nomempleado|| ' '|| doc.apellempleado) ) LIKE '""" + str(name).lower() + """'
                 """)  # curso, deporte, espacio, numestud
             rows = cur.fetchone()
             self.logout_database()
             if rows:
                 return rows, True
-            return [f'El docente llamado {id} no existe o no tiene programado un espacio.', False]
+            return [f'El docente llamado {id_prog} no existe o no tiene programado un espacio.', False]
         except oracledb.Error as error:
             print('get_data_practica_docente Error: ' + str(error))
             return [f'Falló la consulta del docente', False]
@@ -230,9 +229,9 @@ class Database():
                         AND p.codespacio = e.codespacio
                         AND e.esp_codespacio = s.codespacio
                         AND e.idtipoespacio = te.idtipoespacio
-                        AND es.codestu = '"""+id_pasante+"""'
+                        AND es.codestu = '"""+str(id_pasante)+"""'
                         AND es.codestu  = r.codestu
-                        AND p.consecprogra = '"""+id_prog+"""'
+                        AND p.consecprogra = '"""+str(id_prog)+"""'
                         AND r.consecprogra = p.consecprogra
                 """)
             rows = cur.fetchone()
@@ -309,7 +308,6 @@ class Database():
             cur = self.login_database()
             cur.execute(query)
             rows = cur.fetchone()
-            print(rows)
             self.logout_database()
             if rows:
                 return rows, True
@@ -393,6 +391,34 @@ class Database():
     def get_materiales(self, id_sede, id_deporte):
         try:
             cur = self.login_database()
+            print(
+                """
+                    SELECT JSON_OBJECT(
+                        KEY 'idElemento' IS e.consecelemento,
+                        KEY 'idEspacio' IS e.codespacio,
+                        KEY 'marca' IS m.nommarca,
+                        KEY 'material' IS te.desctipoelemento,
+                        KEY 'sede' IS es.nomespacio,
+                        KEY 'deporte' IS d.nomdeporte
+                        )
+                    FROM
+                        elemendeportivo e,
+                        marca m,
+                        tipoelemento te,
+                        espacio es,
+                        deportetipoelem ted,
+                        deporte d
+                    WHERE
+                        m.idmarca = e.idmarca and
+                        e.idestado = 'ac' and
+                        e.idtipoelemento = te.idtipoelemento and
+                        e.codespacio = es.codespacio and
+                        es.codespacio = '""" + id_sede + """' and
+                        d.iddeporte = '""" + id_deporte + """' and
+                        te.idtipoelemento = ted.idtipoelemento and
+                        d.iddeporte = ted.iddeporte
+                """
+            )
             cur.execute(
                 """
                     SELECT JSON_OBJECT(
@@ -420,7 +446,8 @@ class Database():
                         te.idtipoelemento = ted.idtipoelemento and
                         d.iddeporte = ted.iddeporte
                 """)
-            rows = cur.fetchone()
+            rows = cur.fetchmany()
+            print(rows)
             self.logout_database()
             if rows:
                 return rows, True
