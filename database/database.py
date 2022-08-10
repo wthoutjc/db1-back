@@ -254,12 +254,41 @@ class Database():
             print('read_miembro Error: ' + str(error))
             return [f'Falló la consulta del miembro con id {id_miembro}', False]
 
-    def get_data_entrenamiento(self, id_entrendor):
+    def get_data_entrenamiento(self, id_entrenador, id_prog):
         try:
             cur = self.login_database()
             cur.execute(
                 """
-                    """)  # curso, deporte, espacio, numestud
+                    SELECT JSON_OBJECT (
+                        KEY 'id_equipo' IS eq.conseequipo,
+                        KEY 'id_sede' IS s.codespacio,
+                        KEY 'espacio' IS e.nomespacio,
+                        KEY 'deporte' IS d.nomdeporte,
+                        KEY 'id_deporte' IS d.iddeporte,
+                        KEY 'num_est' IS p.noinscrito )
+                    FROM
+                        espacio e,
+                        espacio s,
+                        tipoespacio te,
+                        deporte d,
+                        programacion p,
+                        responsable r,
+                        empleado doc,
+                        empleadocargo ec,
+                        equipo eq
+                    WHERE
+                            p.iddeporte = d.iddeporte
+                        AND p.codespacio = e.codespacio
+                        AND e.esp_codespacio = s.codespacio
+                        AND doc.codempleado = ec.codempleado
+                        AND ec.idcargo = 'en'
+                        AND e.idtipoespacio = te.idtipoespacio
+                        AND r.codempleado = doc.codempleado
+                        AND p.consecprogra = '""" + id_prog + """'
+                        AND r.consecprogra = p.consecprogra
+                        AND eq.codempleado = doc.codempleado
+                        AND r.codempleado = '""" + id_entrenador + """'
+                """)  # curso, deporte, espacio, numestud
             rows = cur.fetchone()
             self.logout_database()
             if rows:
@@ -368,27 +397,3 @@ class Database():
         except oracledb.Error as error:
             print('read_docente Error: ' + str(error))
             return [f'Falló la consulta del miembro con id {id_miembro}', False]
-        '''
-                query : "SELECT
-            e.consecelemento,
-            e.codespacio,
-            m.nommarca,
-            te.desctipoelemento,
-            es.nomespacio,
-            d.nomdeporte
-        FROM
-            elemendeportivo e,
-            marca           m,
-            tipoelemento te,
-            espacio es,
-            tipoelementodeporte ted,
-            deporte d
-        WHERE
-            m.idmarca = e.idmarca and
-            e.idestado = 'ac' and
-            e.idtipoelemento = te.idtipoelemento and
-            e.codespacio = es.codespacio and
-            te.idtipoelemento = ted.idtipoelemento and
-            d.iddeporte = ted.iddeporte;"
-        '''
-        pass
