@@ -10,7 +10,7 @@ import json
 
 # Utils
 from utils.date_validation import date_validation
-from utils.auxiliar import Auxiliar
+from utils.empleado import Director
 
 # PDF
 from PDF.pdf import PDF
@@ -25,7 +25,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 
 database = Database()
-aux = Auxiliar()
+dir = Director()
 
 pdf = PDF()
 
@@ -46,6 +46,7 @@ def login():
         if role == "ddeportivo":
             message, success = database.read_directordeportivo(data['cod'])
             if success:
+                dir.set_data(json.loads(message[0]))
                 return make_response(jsonify({"ddeportivo": message[0], "status": "success"}), 200)
             return make_response(jsonify({"message": message, "status": "failed"}), 500)
     return make_response(jsonify({"message": 'Falló el procesamiento de la solicitud.'}), 500)
@@ -139,7 +140,7 @@ def prestar():
         '''
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
-        
+
         message, success = database.prestar(request_data)
         if success:
             return make_response(jsonify({"message": message, "status": "success"}), 200)
@@ -155,6 +156,8 @@ def pdf_pasante():
                 return filedatapdf
     '''
     # date_validation()
+    #rows = database.get_reporte_pasantes()
+
     pdf.add_page()
     pdf.logo('assets/sports.png', 0, 0, 60, 15)
     pdf.texts(' ')
@@ -171,7 +174,50 @@ def pdf_miembro():
                 query: obtener horas asistidas de todos los miembros con periodo y sede
                 return filedatapdf
     '''
-    date_validation()
+    rows, success = database.get_reporte_miembros(dir.sede)
+    if success:
+        pdf.add_page()
+        page_width = pdf.w - 2 * pdf.l_margin
+        pdf.set_font('Times', 'B', 14.0)
+        pdf.cell(page_width, 0.0, 'Reporte Asistencia', align='C')
+        pdf.ln(10)
+        pdf.logo('assets/sports.png', 0, 0, 60, 15)
+
+        pdf.set_font('Courier', '', 12)
+
+        col_width = page_width/4
+
+        pdf.ln(1)
+
+        th = pdf.font_size
+
+        pdf.cell(col_width, th, "CODIGO", border=1)
+        pdf.cell(col_width, th, "DEPORTE", border=1)
+        pdf.cell(col_width, th, "ESPACIO", border=1)
+        pdf.cell(col_width, th, "HORAS", border=1)
+        pdf.ln(th)
+
+        aux = []
+        for row in rows:
+            aux.append(json.loads(row[0]))
+
+        print(aux)
+
+        for row in aux:
+            pdf.cell(col_width, th, row['cod'], border=1)
+            pdf.cell(col_width, th, row['nom'], border=1)
+            pdf.cell(col_width, th, row['nomesp'], border=1)
+            pdf.cell(col_width, th, row['sum'], border=1)
+            pdf.ln(th)
+
+        pdf.ln(10)
+
+        pdf.set_font('Times', '', 10.0)
+        pdf.cell(page_width, 0.0, '- fin del reporte -', align='C')
+
+        pdf.output('reporte_miembros.pdf', 'F')
+        return make_response(jsonify({"message": "ok", "status": "ok"}), 200)
+    print("No hay datos para mostrar")
     return make_response(jsonify({"message": "ok", "status": "failed"}), 500)
 
 
