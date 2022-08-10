@@ -278,37 +278,14 @@ class Database():
             cur = self.login_database()
             cur.execute(
                 """
-                    SELECT JSON_OBJECT (
-                        KEY 'id_equipo' IS eq.conseequipo,
-                        KEY 'id_sede' IS s.codespacio,
-                        KEY 'espacio' IS e.nomespacio,
-                        KEY 'deporte' IS d.nomdeporte,
-                        KEY 'id_deporte' IS d.iddeporte,
-                        KEY 'num_est' IS p.noinscrito )
-                    FROM
-                        espacio e,
-                        espacio s,
-                        tipoespacio te,
-                        deporte d,
-                        programacion p,
-                        responsable r,
-                        empleado doc,
-                        empleadocargo ec,
-                        equipo eq
-                    WHERE
-                            p.iddeporte = d.iddeporte
-                        AND p.codespacio = e.codespacio
-                        AND e.esp_codespacio = s.codespacio
-                        AND doc.codempleado = ec.codempleado
-                        AND ec.idcargo = 'en'
-                        AND e.idtipoespacio = te.idtipoespacio
-                        AND r.codempleado = doc.codempleado
-                        AND p.consecprogra = '""" + id_prog + """'
-                        AND r.consecprogra = p.consecprogra
-                        AND eq.codempleado = doc.codempleado
-                        AND r.codempleado = '""" + id_entrenador + """'
+                    INSERT
                 """)  # curso, deporte, espacio, numestud
             rows = cur.fetchone()
+            cur.execute(
+                """
+                    SELECT
+                """
+            )
             self.logout_database()
             if rows:
                 return rows, True
