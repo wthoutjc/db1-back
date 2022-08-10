@@ -3,7 +3,6 @@ import oracledb
 
 from database.connection import Connection
 
-
 class Database():
     def __init__(self):
         '''
@@ -74,6 +73,34 @@ class Database():
         except oracledb.Error as error:
             print('read_auxiliar Error: ' + str(error))
             return [f'Falló la consulta de auxiliar con código {id}', False]
+
+    def read_directordeportivo(self, id):
+        try:
+            cur = self.login_database()
+            cur.execute(
+                """SELECT JSON_OBJECT(
+                    KEY 'name'  IS e.nomempleado||' '||e.apellempleado,
+                    KEY 'sede' IS es.nomespacio,
+                    KEY 'date' IS to_char(current_date, 'DD/MM/YY'),
+                    KEY 'time' IS to_char(current_date, 'HH24:mi')
+                    )
+                FROM
+                    empleado      e,
+                    empleadocargo ec,
+                    espacio es
+                WHERE
+                        e.codempleado = '""" + id + """'
+                    AND e.codempleado = ec.codempleado
+                    AND ec.idcargo = 'dd'
+                    AND ec.codespacio = es.codespacio""")
+            rows = cur.fetchone()
+            self.logout_database()
+            if rows:
+                return rows, True
+            return [f'El código {id} no corresponde a un empleado.', False]
+        except oracledb.Error as error:
+            print('read_auxiliar Error: ' + str(error))
+            return [f'Falló la consulta de empleado con código {id}', False]
 
     def read_docente(self, name):
         try:
@@ -364,31 +391,7 @@ class Database():
             self.logout_database()
             if rows:
                 return rows, True
-            return [f'El miembro con {id_miembro} no existe.', False]
+            return [f'No se pudieron obtener los materiales', False]
         except oracledb.Error as error:
             print('read_docente Error: ' + str(error))
-            return [f'Falló la consulta del miembro con id {id_miembro}', False]
-        '''
-                query : "SELECT
-            e.consecelemento,
-            e.codespacio,
-            m.nommarca,
-            te.desctipoelemento,
-            es.nomespacio,
-            d.nomdeporte
-        FROM
-            elemendeportivo e,
-            marca           m,
-            tipoelemento te,
-            espacio es,
-            tipoelementodeporte ted,
-            deporte d
-        WHERE
-            m.idmarca = e.idmarca and
-            e.idestado = 'ac' and
-            e.idtipoelemento = te.idtipoelemento and
-            e.codespacio = es.codespacio and
-            te.idtipoelemento = ted.idtipoelemento and
-            d.iddeporte = ted.iddeporte;"
-        '''
-        pass
+            return [f'Falló la consulta de materiales', False]
