@@ -69,7 +69,7 @@ def get_docente(name):
                 if success:
                     for material in materiales:
                         result_material.append(json.loads(material[0]))
-                    return make_response(jsonify({"message":{**json.loads(message[0]), **json.loads(practica_docente[0])}, "materiales": result_material,"status": "success"}), 200)
+                    return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_docente[0])}, "materiales": result_material, "status": "success"}), 200)
                 return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_docente[0])}, "status": "success"}), 200)
             return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
         return make_response(jsonify({"message": message[0], "status": "success"}), 200)
@@ -93,7 +93,7 @@ def get_pasante(id):
                 if success:
                     for material in materiales:
                         result_material.append(json.loads(material[0]))
-                    return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_libre[0])},"materiales": result_material, "status": "success"}), 200)
+                    return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_libre[0])}, "materiales": result_material, "status": "success"}), 200)
                 return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_libre[0])}, "status": "success"}), 200)
             return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
         return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
@@ -132,6 +132,7 @@ def prestar():
                     query: actualizar estado como prestado
                     return string[success, failed]
         '''
+        register_prestamo(self, programacion)
         return make_response(jsonify({"message": "ok", "status": "failed"}), 500)
     return make_response(jsonify({"message": 'not ok'}), 500)
 

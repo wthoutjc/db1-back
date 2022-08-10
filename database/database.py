@@ -391,34 +391,7 @@ class Database():
     def get_materiales(self, id_sede, id_deporte):
         try:
             cur = self.login_database()
-            print(
-                """
-                    SELECT JSON_OBJECT(
-                        KEY 'idElemento' IS e.consecelemento,
-                        KEY 'idEspacio' IS e.codespacio,
-                        KEY 'marca' IS m.nommarca,
-                        KEY 'material' IS te.desctipoelemento,
-                        KEY 'sede' IS es.nomespacio,
-                        KEY 'deporte' IS d.nomdeporte
-                        )
-                    FROM
-                        elemendeportivo e,
-                        marca m,
-                        tipoelemento te,
-                        espacio es,
-                        deportetipoelem ted,
-                        deporte d
-                    WHERE
-                        m.idmarca = e.idmarca and
-                        e.idestado = 'ac' and
-                        e.idtipoelemento = te.idtipoelemento and
-                        e.codespacio = es.codespacio and
-                        es.codespacio = '""" + id_sede + """' and
-                        d.iddeporte = '""" + id_deporte + """' and
-                        te.idtipoelemento = ted.idtipoelemento and
-                        d.iddeporte = ted.iddeporte
-                """
-            )
+
             cur.execute(
                 """
                     SELECT JSON_OBJECT(
