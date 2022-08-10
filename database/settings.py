@@ -1,6 +1,6 @@
 # ARCHIVO PRIVADO
 SETTINGS = {
-    "user": "arefome",
-    "password": "arefome",
+    "user": "root",
+    "password": "9498",
     "dsn": "localhost:1521/orcl"
 }

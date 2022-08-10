@@ -1,2 +1,2 @@
 venv/
-settings.py
+settings.py/*__pycache__

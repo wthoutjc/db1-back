@@ -11,4 +11,4 @@ class Auxiliar():
         self.name = data['name']
         self.sede = data['sede']
         self.date= data['date']
-        self.time = data['time'] 
+        self.time = data['time']

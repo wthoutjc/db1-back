@@ -35,14 +35,22 @@ def login():
     if request.data:
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
-        message, success = database.read_auxiliar(request_data['cod'])
-        print(message[0])
-        if success:
-            aux.set_data(json.loads(message[0]))
-            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
-        return make_response(jsonify({"message": message, "status": "failed"}), 500)
-    return make_response(jsonify({"message": 'not ok'}), 500)
 
+        data = request_data["data"]
+        role = request_data["role"]
+        if role == "auxiliar":
+            message, success = database.read_auxiliar(data['cod'])
+            if success:
+                aux.set_data(json.loads(message[0]))
+                return make_response(jsonify({"auxiliar": message[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": message, "status": "failed"}), 500)
+        if role == "ddeportivo":
+            message, success = database.read_directordeportivo(data['cod'])
+            if success:
+                aux.set_data(json.loads(message[0]))
+                return make_response(jsonify({"ddeportivo": message[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": message, "status": "failed"}), 500)
+    return make_response(jsonify({"message": 'Falló el procesamiento de la solicitud.'}), 500)
 
 @app.route("/docente/<name>")
 def get_docente(name):
