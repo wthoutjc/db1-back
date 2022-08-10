@@ -11,6 +11,9 @@ import json
 from utils.date_validation import date_validation
 from utils.auxiliar import Auxiliar
 
+# PDF
+from PDF.pdf import PDF
+
 app = Flask(__name__)
 
 # Config del entorno
@@ -23,6 +26,7 @@ app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 database = Database()
 aux = Auxiliar()
 
+pdf = PDF()
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -108,7 +112,13 @@ def pdf_pasante():
                 query: obtener todos los pasantes con el periodo, la sede y las horas asistidas
                 return filedatapdf
     '''
-    date_validation()
+    # date_validation()
+    pdf.add_page()
+    pdf.logo('assets/sports.png', 0, 0, 60, 15)
+    pdf.texts(' ')
+    pdf.titles('Hola mundo!')
+    pdf.set_author('Camilo')
+    pdf.output('test.pdf', 'F')
     return make_response(jsonify({"message": "ok", "status": "failed"}), 500)
 
 
