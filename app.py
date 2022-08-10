@@ -29,11 +29,13 @@ aux = Auxiliar()
 
 pdf = PDF()
 
+
 @app.route("/login", methods=["POST"])
 def login():
     if request.data:
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
+
         data = request_data["data"]
         role = request_data["role"]
         if role == "auxiliar":
@@ -66,7 +68,7 @@ def get_docente(name):
                 if success:
                     return make_response(jsonify({"message": message[0] | practica_docente[0] | materiales[0], "status": "success"}), 200)
                 return make_response(jsonify({"message": message[0] | practica_docente[0], "status": "success"}), 200)
-            return make_response(jsonify({"message": message[0], "status": "failed"}), 200)
+            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
         return make_response(jsonify({"message": message[0], "status": "success"}), 200)
     return make_response(jsonify({"message": f'El profesor {name} no existe.'}), 500)
 
@@ -86,7 +88,7 @@ def get_pasante(id):
                 if success:
                     return make_response(jsonify({"message": message[0] | practica_libre[0] | materiales[0], "status": "success"}), 200)
                 return make_response(jsonify({"message": message[0] | practica_libre[0], "status": "success"}), 200)
-            return make_response(jsonify({"message": message[0], "status": "failed"}), 200)
+            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
         return make_response(jsonify({"message": message[0], "status": "success"}), 200)
     return make_response(jsonify({"message": f'El pasante con {id} no existe.'}), 500)
 
@@ -94,24 +96,27 @@ def get_pasante(id):
 @app.route("/miembro", methods=["POST"])
 def get_miembro():
     if request.data:
-        '''
-        parameters: id string, datetime
-                    query: obtener datos estudiante
-                    validar rango - usar date_validation 
-                    if true registrar en asismiembroequipo
-                    return datos estudiante, sede
-        '''
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
         message, success = database.read_miembro(
             request_data['cod'], request_data['codEquipo'])
         if success:
             id_entrenador = json.loads(message[0])['entrenador']
-            if(date_validation(database, id_entrenador, "pasante")):
-                message, success = database.get_data_entrenamiento(
-                    id_entrenador)
-        return make_response(jsonify({"message": "ok", "status": "failed"}), 500)
-    return make_response(jsonify({"message": 'not ok'}), 500)
+            programacion, success = date_validation(
+                database, id_entrenador, "pasante")
+            if success:
+                entrenamiento, success = database.get_data_entrenamiento(
+                    id_entrenador, json.loads(programacion[0])['idProgra'])
+                if success:
+                    materiales, success = database.get_materiales(
+                        json.loads(entrenamiento[0])['id_sede'], json.loads(entrenamiento[0])['id_deporte'])
+                    if success:
+                        return make_response(jsonify({"message": message[0] | entrenamiento[0] | materiales[0], "status": "success"}), 200)
+                    return make_response(jsonify({"message": message[0] | entrenamiento[0], "status": "success"}), 200)
+                return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+        return make_response(jsonify({"message": message, "status": "failed"}), 500)
+    return make_response(jsonify({"message": 'Not ok.'}), 500)
 
 
 @app.route("/prestar", methods=["POST"])
