@@ -63,10 +63,14 @@ def get_docente(name):
             if success:
                 materiales, success = database.get_materiales(
                     json.loads(practica_docente[0])['id_sede'], json.loads(practica_docente[0])['id_deporte'])
+                print('practica_docente')
+                result_material = []
                 if success:
-                    return make_response(jsonify({"message": message[0] | practica_docente[0] | materiales[0], "status": "success"}), 200)
-                return make_response(jsonify({"message": message[0] | practica_docente[0], "status": "success"}), 200)
-            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+                    for material in materiales:
+                        result_material.append(json.loads(material[0]))
+                    return make_response(jsonify({"message":{**json.loads(message[0]), **json.loads(practica_docente[0])}, "materiales": result_material,"status": "success"}), 200)
+                return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_docente[0])}, "status": "success"}), 200)
+            return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
         return make_response(jsonify({"message": message[0], "status": "success"}), 200)
     return make_response(jsonify({"message": f'El profesor {name} no existe.'}), 500)
 
@@ -79,14 +83,19 @@ def get_pasante(id):
         if success:
             practica_libre, success = database.get_data_practica_libre(
                 id, json.loads(programacion[0])['idProgra'])
+            print('practica_libre')
+            print(practica_libre)
             if success:
                 materiales, success = database.get_materiales(
-                    json.loads(practica_libre[0])['id_sede'], json.loads(practica_libre[0])['id_deporte'])
+                    json.loads(practica_libre[0])['sede'], json.loads(practica_libre[0])['id_deporte'])
+                result_material = []
                 if success:
-                    return make_response(jsonify({"message": message[0] | practica_libre[0] | materiales[0], "status": "success"}), 200)
-                return make_response(jsonify({"message": message[0] | practica_libre[0], "status": "success"}), 200)
-            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
-        return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+                    for material in materiales:
+                        result_material.append(json.loads(material[0]))
+                    return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_libre[0])},"materiales": result_material, "status": "success"}), 200)
+                return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_libre[0])}, "status": "success"}), 200)
+            return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
+        return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
     return make_response(jsonify({"message": f'El pasante con {id} no existe.'}), 500)
 
 
