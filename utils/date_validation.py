@@ -2,9 +2,10 @@
 def date_validation(database, id_asistente, tipo_asistencia):
     if tipo_asistencia == "docente":
         query = """
-                    SELECT
-                        r.consecres,
-                        r.codempleado
+                    SELECT JSON_OBJECT(
+                        KEY 'idProgra' IS p.consecprogra,
+                        KEY 'idResp' IS r.consecres
+                    )
                     FROM
                         responsable  r,
                         programacion p
@@ -16,9 +17,10 @@ def date_validation(database, id_asistente, tipo_asistencia):
         return database.process_date_query(query)  # to_char(current_date, 'HH24') DEVUELVE VALOR BOOLEANO
     if tipo_asistencia == "pasante":
         query = """
-                    SELECT
-                        r.consecres,
-                        r.codestu
+                    SELECT JSON_OBJECT(
+                        KEY 'idProgra' IS p.consecprogra,
+                        KEY 'idResp' IS r.consecres
+                    )
                     FROM
                         responsable  r,
                         programacion p
@@ -30,9 +32,10 @@ def date_validation(database, id_asistente, tipo_asistencia):
         return database.process_date_query(query)
     if tipo_asistencia == "miembro":
         query = """
-                    SELECT
-                        r.consecres,
-                        r.codestu
+                    SELECT JSON_OBJECT(
+                        KEY 'idProgra' IS p.consecprogra,
+                        KEY 'idResp' IS r.consecres
+                    )
                     FROM
                         responsable  r,
                         programacion p
@@ -42,4 +45,4 @@ def date_validation(database, id_asistente, tipo_asistencia):
                         AND current_timestamp < to_timestamp(r.fechaini || ' ' || to_char(to_timestamp(r.fechaini || ' ' || p.idhora) + 90/24/60, 'HH24:mi'))
                         AND current_timestamp > to_timestamp(r.fechaini || ' ' || to_char(to_timestamp(r.fechaini || ' ' || p.idhora) - 15/24/60, 'HH24:mi'))"""
         return database.process_date_query(query)  # identrenador
-    return False
+    return False, None

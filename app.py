@@ -1,3 +1,4 @@
+from tkinter import N
 from flask import Flask, request, jsonify, make_response, render_template
 from flask_cors import CORS
 
@@ -34,10 +35,11 @@ def login():
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
         message, success = database.read_auxiliar(request_data['cod'])
+        print(message[0])
         if success:
             aux.set_data(json.loads(message[0]))
-            return make_response(jsonify({"message": message, "status": "success"}), 200)
-        return make_response(jsonify({"message": message, "status": "failed"}), 500)
+            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+        return make_response(jsonify({"message": message[0], "status": "failed"}), 500)
     return make_response(jsonify({"message": 'not ok'}), 500)
 
 
@@ -45,14 +47,19 @@ def login():
 def get_docente(name):
     message, success = database.read_docente(name)
     if success:
-        print(message)
         id_docente = json.loads(message[0])['id']
-        if date_validation(database, id_docente, "docente"):
+        programacion, success = date_validation(
+            database, id_docente, "docente")
+        if success:
             practica_docente, success = database.get_data_practica_docente(
-                name)  # puede que le mande más de una practica
+                json.loads(programacion[0])['idProgra'], name)
             if success:
-                return make_response(jsonify({"message": message | practica_docente, "status": "success"}), 200)
-            return make_response(jsonify({"message": message, "status": "failed"}), 200)
+                materiales, success = database.get_materiales(
+                    json.loads(practica_docente[0])['id_sede'], json.loads(practica_docente[0])['id_deporte'])
+                if success:
+                    return make_response(jsonify({"message": message[0] | practica_docente[0] | materiales[0], "status": "success"}), 200)
+                return make_response(jsonify({"message": message[0] | practica_docente[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": message[0], "status": "failed"}), 200)
         return make_response(jsonify({"message": message[0], "status": "success"}), 200)
     return make_response(jsonify({"message": f'El profesor {name} no existe.'}), 500)
 
@@ -61,13 +68,20 @@ def get_docente(name):
 def get_pasante(id):
     message, success = database.read_pasante(id)
     if success:
-        if date_validation(database, id,  "pasante"):
-            message, success = database.get_data_practica_libre()
+        programacion, success = date_validation(database, id,  "pasante")
+        if success:
+            practica_libre, success = database.get_data_practica_libre(
+                id, json.loads(programacion[0])['idProgra'])
             print(message)
             if success:
-                return make_response(jsonify({"message": message, "status": "success"}), 200)
-            return make_response(jsonify({"message": message, "status": "failed"}), 500)
-    return make_response(jsonify({"message": 'not ok'}), 500)
+                materiales, success = database.get_materiales(
+                    json.loads(practica_libre[0])['id_sede'], json.loads(practica_libre[0])['id_deporte'])
+                if success:
+                    return make_response(jsonify({"message": message[0] | practica_libre[0] | materiales[0], "status": "success"}), 200)
+                return make_response(jsonify({"message": message[0] | practica_libre[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": message[0], "status": "failed"}), 200)
+        return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+    return make_response(jsonify({"message": f'El pasante con {id} no existe.'}), 500)
 
 
 @app.route("/miembro", methods=["POST"])
