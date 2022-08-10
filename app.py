@@ -50,6 +50,7 @@ def login():
             return make_response(jsonify({"message": message, "status": "failed"}), 500)
     return make_response(jsonify({"message": 'Falló el procesamiento de la solicitud.'}), 500)
 
+
 @app.route("/docente/<name>")
 def get_docente(name):
     message, success = database.read_docente(name)
@@ -102,15 +103,13 @@ def get_miembro():
             programacion, success = date_validation(
                 database, id_entrenador, "pasante")
             if success:
-                entrenamiento, success = database.get_data_entrenamiento(
-                    id_entrenador, json.loads(programacion[0])['idProgra'])
+                id_equipo = json.loads(message[0])['id_equipo']
+                item = json.loads(message[0])['item']
+                asistencia, success = database.get_asistencia_miembro(
+                    json.loads(programacion[0])['idProgra'], id_equipo, item)
                 if success:
-                    materiales, success = database.get_materiales(
-                        json.loads(entrenamiento[0])['id_sede'], json.loads(entrenamiento[0])['id_deporte'])
-                    if success:
-                        return make_response(jsonify({"message": message[0] | entrenamiento[0] | materiales[0], "status": "success"}), 200)
-                    return make_response(jsonify({"message": message[0] | entrenamiento[0], "status": "success"}), 200)
-                return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+                    return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(programacion[0]), **json.loads(asistencia[0])}, "status": "success"}), 200)
+                return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(programacion[0])}, "status": "success"}), 200)
             return make_response(jsonify({"message": message[0], "status": "success"}), 200)
         return make_response(jsonify({"message": message, "status": "failed"}), 500)
     return make_response(jsonify({"message": 'Not ok.'}), 500)
