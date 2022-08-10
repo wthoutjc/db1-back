@@ -393,6 +393,7 @@ class Database():
     def get_materiales(self, id_sede, id_deporte):
         try:
             cur = self.login_database()
+
             cur.execute(
                 """
                     SELECT JSON_OBJECT(
