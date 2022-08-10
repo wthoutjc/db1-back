@@ -252,15 +252,10 @@ class Database():
                         KEY 'id' is  e.codestu,
                         KEY 'name' is  e.nomestu||' '||e.apelestu,
                         KEY 'deporte' is de.nomdeporte,
-                        KEY 'dia' is d.nomdia,
-                        KEY 'horai' is p.idhora,
-                        KEY 'horaf' is p.hor_idhora,
-                        KEY 'periodo' is p.idperiodo,
-                        KEY 'periodo' is p.idperiodo,
                         KEY 'entrenador' is em.codempleado
-                        )
+                    )
                     FROM 
-                        estudiante e, equipo eq, responsable r, programacion p, dia d, miembroequipo m, deporte de, empleado em
+                        estudiante e, equipo eq, miembroequipo m, deporte de, empleado em
                     WHERE  
                         e.codestu = '""" + id_miembro + """'
                         and eq.conseequipo = '""" + id_equipo + """'
@@ -268,15 +263,12 @@ class Database():
                         and m.conseequipo = eq.conseequipo
                         and eq.iddeporte = de.iddeporte
                         and eq.codempleado = em.codempleado
-                        and eq.codempleado = r.codempleado
-                        and r.consecprogra = p.consecprogra
-                        and p.iddia = d.iddia
                 """)
             rows = cur.fetchone()
             self.logout_database()
             if rows:
                 return rows, True
-            return [f'El miembro con {id_miembro} no existe.', False]
+            return [f'El miembro con {id_miembro} y equipo {id_equipo} no existe.', False]
         except oracledb.Error as error:
             print('read_miembro Error: ' + str(error))
             return [f'Falló la consulta del miembro con id {id_miembro}', False]
@@ -404,7 +396,7 @@ class Database():
                         marca m,
                         tipoelemento te,
                         espacio es,
-                        tipoelementodeporte ted,
+                        deportetipoelem ted,
                         deporte d
                     WHERE
                         m.idmarca = e.idmarca and

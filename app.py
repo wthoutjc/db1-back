@@ -41,13 +41,11 @@ def login():
         if role == "auxiliar":
             message, success = database.read_auxiliar(data['cod'])
             if success:
-                aux.set_data(json.loads(message[0]))
                 return make_response(jsonify({"auxiliar": message[0], "status": "success"}), 200)
             return make_response(jsonify({"message": message, "status": "failed"}), 500)
         if role == "ddeportivo":
             message, success = database.read_directordeportivo(data['cod'])
             if success:
-                aux.set_data(json.loads(message[0]))
                 return make_response(jsonify({"ddeportivo": message[0], "status": "success"}), 200)
             return make_response(jsonify({"message": message, "status": "failed"}), 500)
     return make_response(jsonify({"message": 'Falló el procesamiento de la solicitud.'}), 500)
@@ -81,7 +79,6 @@ def get_pasante(id):
         if success:
             practica_libre, success = database.get_data_practica_libre(
                 id, json.loads(programacion[0])['idProgra'])
-            print(message)
             if success:
                 materiales, success = database.get_materiales(
                     json.loads(practica_libre[0])['id_sede'], json.loads(practica_libre[0])['id_deporte'])
