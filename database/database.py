@@ -428,5 +428,19 @@ class Database():
             return [f'No se pudieron obtener los materiales', False]
         except oracledb.Error as error:
             print('read_docente Error: ' + str(error))
-
             return [f'Falló la consulta de materiales', False]
+    
+    def prestar(self, data):
+        try:
+            cursor = self.login_database()
+            for item in data:
+                query = "UPDATE ELEMENDEPORTIVO SET IDESTADO = 'pr' WHERE CONSECELEMENTO ='" + str(item["idElemento"]) + "'AND CODESPACIO = '" + str(item["idEspacio"]) + "'"
+                cursor.execute(query)
+                self.connection.based.commit()
+            self.logout_database()
+            return [f'Los elementos se han prestado exitosamente', True]
+        except oracledb.Error as error:
+            print('prestar Error: ' + str(error))
+            return [f'Falló el prestamo de materiales', False]
+
+

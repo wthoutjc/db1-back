@@ -134,8 +134,14 @@ def prestar():
                     query: actualizar estado como prestado
                     return string[success, failed]
         '''
+        data = request.data.decode("UTF-8")
+        request_data = json.loads(data)
+        
+        message, success = database.prestar(request_data)
+        if success:
+            return make_response(jsonify({"message": message, "status": "success"}), 200)
         return make_response(jsonify({"message": "ok", "status": "failed"}), 500)
-    return make_response(jsonify({"message": 'not ok'}), 500)
+    return make_response(jsonify({"message": 'Falló el procesamiento de la solicitud.'}), 500)
 
 
 @app.route("/pdf-pasante")
