@@ -110,16 +110,18 @@ def get_miembro():
         if success:
             id_entrenador = json.loads(message[0])['entrenador']
             programacion, success = date_validation(
-                database, id_entrenador, "pasante")
+                database, id_entrenador, "miembro")
+            print(success)
             if success:
                 id_equipo = json.loads(message[0])['id_equipo']
                 item = json.loads(message[0])['item']
                 asistencia, success = database.get_asistencia_miembro(
                     json.loads(programacion[0])['idProgra'], id_equipo, item)
+                print(asistencia)
                 if success:
                     return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(programacion[0]), **json.loads(asistencia[0])}, "status": "success"}), 200)
                 return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(programacion[0])}, "status": "success"}), 200)
-            return make_response(jsonify({"message": message[0], "status": "success"}), 200)
+            return make_response(jsonify({"message": json.loads(message[0]), "status": "success"}), 200)
         return make_response(jsonify({"message": message, "status": "failed"}), 500)
     return make_response(jsonify({"message": 'Not ok.'}), 500)
 
