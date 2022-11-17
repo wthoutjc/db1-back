@@ -364,7 +364,7 @@ class Database():
                         FROM 
                             asistirresponsable
                         WHERE
-                            consecres = '""" + id_res + """';
+                            consecres = '""" + str(id_res) + """'
                     """)
             rows = cur.fetchone()
             self.logout_database()
@@ -441,6 +441,9 @@ class Database():
                 cursor.execute(query)
                 self.connection.based.commit()
             self.logout_database()
+
+
+            
             return [f'Los elementos se han prestado exitosamente', True]
         except oracledb.Error as error:
             print('prestar Error: ' + str(error))
@@ -455,15 +458,7 @@ class Database():
                         KEY 'cod' is e.codestu,
                         KEY 'nom' is d.nomdeporte,
                         KEY 'nomesp' is es.nomespacio,
-                        KEY 'sum' is SUM(
-                                    CASE
-                                        WHEN length(p.idhora) = 4
-                                            AND length(p.hor_idhora) = 4 THEN
-                                            TO_NUMBER(substr(p.hor_idhora, 0, 1)) - TO_NUMBER(substr(p.idhora, 0, 1))
-                                        ELSE
-                                            TO_NUMBER(substr(p.hor_idhora, 0, 2)) - TO_NUMBER(substr(p.idhora, 0, 2))
-                                    END) 
-                        )
+                        KEY 'sum' is 4)
                     FROM
                         programacion      p,
                         asismiemequipo    am,
@@ -483,7 +478,8 @@ class Database():
                         AND d.iddeporte = ed.iddeporte
                         AND es.codespacio = e.codespacio
                         AND es.idtipoespacio = te.idtipoespacio
-                        AND lower(es.nomespacio) LIKE '"""+sede+"""'
+                        AND e.codespacio = es.codespacio                        
+                        AND lower(es.nomespacio) LIKE '""" +  str(sede).lower() + """'
                     GROUP BY
                         e.codestu,
                         d.nomdeporte,

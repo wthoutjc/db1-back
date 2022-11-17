@@ -46,6 +46,9 @@ def login():
         if role == "ddeportivo":
             message, success = database.read_directordeportivo(data['cod'])
             if success:
+                print('CREEMOS EN TI')
+                print(message)
+                print(json.loads(message[0]))
                 dir.set_data(json.loads(message[0]))
                 return make_response(jsonify({"ddeportivo": message[0], "status": "success"}), 200)
             return make_response(jsonify({"message": message, "status": "failed"}), 500)
@@ -62,7 +65,6 @@ def get_docente(name):
         if success:
             asistencia, success = database.get_asistencia_responsable(json.loads(
                 programacion[0])['idProgra'], json.loads(programacion[0])['idResp'])
-            print(json.loads(asistencia))
             practica_docente, success = database.get_data_practica_docente(
                 json.loads(programacion[0])['idProgra'], name)
             if success:
@@ -175,6 +177,8 @@ def pdf_miembro():
                 return filedatapdf
     '''
     rows, success = database.get_reporte_miembros(dir.sede)
+    print('dir.sede')
+    print(dir.sede)
     if success:
         pdf.add_page()
         page_width = pdf.w - 2 * pdf.l_margin
@@ -207,7 +211,7 @@ def pdf_miembro():
             pdf.cell(col_width, th, row['cod'], border=1)
             pdf.cell(col_width, th, row['nom'], border=1)
             pdf.cell(col_width, th, row['nomesp'], border=1)
-            pdf.cell(col_width, th, row['sum'], border=1)
+            pdf.cell(col_width, th, str(row['sum']), border=1)
             pdf.ln(th)
 
         pdf.ln(10)
