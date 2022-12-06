@@ -49,8 +49,8 @@ class Database():
     def read_auxiliar(self, id):
         try:
             cur = self.login_database()
-            cur.execute(
-                """SELECT JSON_OBJECT(
+            query = """
+            SELECT JSON_OBJECT(
                     KEY 'name'  IS e.nomempleado||' '||e.apellempleado,
                     KEY 'sede' IS es.nomespacio,
                     KEY 'date' IS to_char(current_date, 'DD/MM/YY'),
@@ -61,11 +61,14 @@ class Database():
                     empleadocargo ec,
                     espacio es
                 WHERE
-                        e.codempleado = '""" + id + """'
+                        e.codempleado = """ + id + """
                     AND e.codempleado = ec.codempleado
                     AND ec.idcargo = 'au'
-                    AND ec.codespacio = es.codespacio""")
+                    AND ec.codespacio = es.codespacio
+            """
+            cur.execute(query)
             rows = cur.fetchone()
+            print(rows)
             self.logout_database()
             if rows:
                 return rows, True
@@ -175,25 +178,31 @@ class Database():
     def read_pasante(self, id_pasante):
         try:
             cur = self.login_database()
-            cur.execute(
-                """
-                    SELECT JSON_OBJECT (
-                        KEY 'id_est' is  e.codestu,
-                        KEY 'name' is  e.nomestu||' '||e.apelestu, 
-                        KEY 'dia' is d.nomdia,
-                        KEY 'horai' is p.idhora,
-                        KEY 'horaf' is p.hor_idhora,
-                        KEY 'periodo' is p.idperiodo
-                        )
-                    FROM 
-                        estudiante e, responsable r, programacion p, dia d
-                    WHERE 
-                        e.codestu = '""" + id_pasante + """'
-                        and r.codestu = e.codestu
-                        and r.consecprogra = p.consecprogra
-                        and p.iddia = d.iddia
-                """)
+            print(id_pasante)
+            query = """
+            SELECT JSON_OBJECT(
+                    KEY 'id_est' IS  e.codestu,
+                    KEY 'name' IS  e.nomestu||' '||e.apelestu, 
+                    KEY 'dia' IS d.nomdia,
+                    KEY 'horai' IS p.idhora,
+                    KEY 'horaf' IS p.hor_idhora,
+                    KEY 'periodo' IS p.idperiodo
+                    )
+                FROM 
+                    estudiante e, 
+                    responsable r, 
+                    programacion p, 
+                    dia d
+                WHERE 
+                        e.codestu = """ + id_pasante + """
+                    AND r.codestu = e.codestu
+                    AND r.consecprogra = p.consecprogra
+                    AND p.iddia = d.iddia
+            """
+            print(query)
+            cur.execute(query)
             rows = cur.fetchone()
+            print(rows)
             self.logout_database()
             if rows:
                 return rows, True

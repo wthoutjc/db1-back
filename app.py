@@ -36,6 +36,8 @@ def login():
         data = request.data.decode("UTF-8")
         request_data = json.loads(data)
 
+        print(request_data)
+
         data = request_data["data"]
         role = request_data["role"]
         if role == "auxiliar":
