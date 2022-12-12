@@ -28,6 +28,9 @@ dir = Director()
 
 pdf = PDF()
 
+@app.route("/")
+def root_route():
+    return make_response(jsonify({"message": "Bienvenido al servidor!"}), 200)
 
 @app.route("/login", methods=["POST"])
 def login():
