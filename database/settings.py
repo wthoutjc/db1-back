@@ -1,6 +1,6 @@
 # ARCHIVO PRIVADO
 SETTINGS = {
-    "user": "root",
-    "password": "9498",
-    "dsn": "localhost:1521/orcl"
+    "user": "admin",
+    "password": "produgan#123",
+    "dsn": "produgan-v3-testing.cjkjgfpqqyam.sa-east-1.rds.amazonaws.com:1521/orcl"
 }
