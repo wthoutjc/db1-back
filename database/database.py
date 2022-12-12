@@ -1,4 +1,3 @@
-from concurrent.futures import process
 import oracledb
 
 from database.connection import Connection

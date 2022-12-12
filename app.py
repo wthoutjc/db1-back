@@ -1,5 +1,4 @@
-from tkinter import N
-from flask import Flask, request, jsonify, make_response, render_template
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 
 # Database
