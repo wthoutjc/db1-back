@@ -3,7 +3,7 @@ import oracledb
 #Settings
 from database.settings import SETTINGS
 
-class Connect():
+class Connection():
     def __init__(self):
         '''
         Configuración de la base de datos Oracle

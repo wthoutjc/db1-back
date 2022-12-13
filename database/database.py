@@ -1,6 +1,6 @@
 import oracledb
 
-from database.connect import Connect
+from database.connection import Connection
 
 
 class Database():
@@ -16,7 +16,7 @@ class Database():
         Iniciamos una conexion a la base de datos.
         '''
         try:
-            self.connection = Connect()
+            self.connection = Connection()
             return self.connection.cursor
         except oracledb.Error as error:
             print('Login database Error: ' + str(error))
