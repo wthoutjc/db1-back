@@ -14,7 +14,6 @@ class Connection():
             self.cursor = self.based.cursor()
             print("Conectado a la base de datos")
         except oracledb.Error as error:
-            self.based = None
             print('Login database Error: ' + str(error))
     
     def __del__(self):
@@ -23,8 +22,9 @@ class Connection():
         '''
         try:
             if self.based:
-                self.based.close()
                 self.based = None
                 print("Conexión cerrada")
+            else:
+                print("No hay conexión")
         except oracledb.Error as error:
             print('Logout database Error: ' + str(error))

@@ -27,7 +27,6 @@ class Database():
         '''
         try:
             self.connection.__del__()
-            self.connection = None
         except oracledb.Error as error:
             print('Logout database Error: ' + str(error))
 
