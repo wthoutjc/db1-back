@@ -315,6 +315,10 @@ class Database():
     def process_date_query(self, query):
         try:
             cur = self.login_database()
+            cur.execute("""ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'DD/MM/RR HH24:MI:SSXFF'""")
+            cur.execute("""SELECT current_timestamp FROM dual""")
+            response = cur.fetchone()
+            print(response)
             cur.execute(query)
             rows = cur.fetchone()
             self.logout_database()
@@ -430,7 +434,7 @@ class Database():
                         d.iddeporte = ted.iddeporte
                 """)
             rows = cur.fetchmany()
-            print(rows)
+            print(f'rows: {rows}')
             self.logout_database()
             if rows:
                 return rows, True

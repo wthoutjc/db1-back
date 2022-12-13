@@ -63,20 +63,25 @@ def login():
 def get_docente(name):
     message, success = database.read_docente(name)
     if success:
+        print("HAY DOCENTE!")
         id_docente = json.loads(message[0])['id']
         programacion, success = date_validation(
             database, id_docente, "docente")
         if success:
+            print("HAY FECHA!")
+            print(programacion)
             asistencia, success = database.get_asistencia_responsable(json.loads(
                 programacion[0])['idProgra'], json.loads(programacion[0])['idResp'])
             practica_docente, success = database.get_data_practica_docente(
                 json.loads(programacion[0])['idProgra'], name)
             if success:
+                print("HAY ASISTENCIA RESPONSABLE!")
+                print(practica_docente)
                 materiales, success = database.get_materiales(
                     json.loads(practica_docente[0])['id_sede'], json.loads(practica_docente[0])['id_deporte'])
-                print('practica_docente')
                 result_material = []
                 if success:
+                    print("HAY MATERIALES!")
                     for material in materiales:
                         result_material.append(json.loads(material[0]))
                     return make_response(jsonify({"message": {**json.loads(message[0]), **json.loads(practica_docente[0])}, "materiales": result_material, "status": "success"}), 200)
